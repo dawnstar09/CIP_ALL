@@ -189,41 +189,41 @@ export default function ClassPage({ params }: PageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
+    <div className="min-h-screen bg-gray-50 p-2 sm:p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         {/* 헤더 */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-3">
+          <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
             <Link
               href="/"
-              className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors"
+              className="px-3 py-2 sm:px-4 sm:py-2 bg-gray-200 hover:bg-gray-300 active:bg-gray-400 rounded-lg transition-colors text-sm sm:text-base touch-manipulation"
             >
-              ← 돌아가기
+              ← 뒤로
             </Link>
-            <h1 className="text-3xl font-bold text-gray-800">
-              2학년 {classNumber}반 야자 관리
+            <h1 className="text-lg sm:text-2xl md:text-3xl font-bold text-gray-800">
+              2학년 {classNumber}반 야자
             </h1>
           </div>
         </div>
 
         {/* 뷰 모드 전환 */}
-        <div className="flex gap-2 mb-6">
+        <div className="grid grid-cols-2 gap-2 mb-4 sm:mb-6">
           <button
             onClick={() => setViewMode('current')}
-            className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
+            className={`px-4 py-3 rounded-lg font-semibold transition-colors touch-manipulation ${
               viewMode === 'current'
                 ? 'bg-blue-600 text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-100'
+                : 'bg-white text-gray-700 active:bg-gray-100'
             }`}
           >
             현재 야자 현황
           </button>
           <button
             onClick={() => setViewMode('statistics')}
-            className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
+            className={`px-4 py-3 rounded-lg font-semibold transition-colors touch-manipulation ${
               viewMode === 'statistics'
                 ? 'bg-blue-600 text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-100'
+                : 'bg-white text-gray-700 active:bg-gray-100'
             }`}
           >
             야자 통계
@@ -233,32 +233,34 @@ export default function ClassPage({ params }: PageProps) {
         {viewMode === 'current' ? (
           <>
             {/* 날짜 및 차시 선택 */}
-            <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-              <div className="flex flex-wrap items-center gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    날짜
-                  </label>
-                  <input
-                    type="date"
-                    value={currentDate}
-                    onChange={(e) => setCurrentDate(e.target.value)}
-                    className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+            <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md mb-4 sm:mb-6">
+              <div className="flex flex-col gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      날짜
+                    </label>
+                    <input
+                      type="date"
+                      value={currentDate}
+                      onChange={(e) => setCurrentDate(e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      차시
+                    </label>
+                    <PeriodSelector
+                      currentPeriod={currentPeriod}
+                      onPeriodChange={setCurrentPeriod}
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    차시
-                  </label>
-                  <PeriodSelector
-                    currentPeriod={currentPeriod}
-                    onPeriodChange={setCurrentPeriod}
-                  />
-                </div>
-                <div className="ml-auto">
+                <div className="w-full">
                   <button
                     onClick={() => setShowAbsenceModal(true)}
-                    className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors shadow-md"
+                    className="w-full px-6 py-4 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-semibold rounded-lg transition-colors shadow-md touch-manipulation text-base sm:text-lg"
                   >
                     야자 불참 추가
                   </button>
@@ -293,39 +295,51 @@ export default function ClassPage({ params }: PageProps) {
       {/* 불참 상세 모달 */}
       {selectedAbsence && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50"
           onClick={() => setSelectedAbsence(null)}
         >
           <div
-            className="bg-white rounded-lg p-6 max-w-md w-full"
+            className="bg-white rounded-lg p-4 sm:p-6 max-w-md w-full mx-2"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="text-2xl font-bold mb-4">불참 정보</h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl sm:text-2xl font-bold">불참 정보</h2>
+              <button
+                type="button"
+                onClick={() => setSelectedAbsence(null)}
+                className="text-gray-500 hover:text-gray-700 text-2xl w-8 h-8 flex items-center justify-center"
+                aria-label="닫기"
+              >
+                ×
+              </button>
+            </div>
             <div className="space-y-3 mb-6">
-              <div>
+              <div className="text-base">
                 <span className="font-semibold">학생:</span> {selectedAbsence.studentName}
               </div>
-              <div>
+              <div className="text-base">
                 <span className="font-semibold">사유:</span> {selectedAbsence.reason}
               </div>
               {selectedAbsence.detail && (
-                <div>
+                <div className="text-base">
                   <span className="font-semibold">상세:</span> {selectedAbsence.detail}
                 </div>
               )}
             </div>
-            <div className="flex gap-3">
+            <div className="grid grid-cols-2 gap-3">
               <button
-                onClick={() => handleRemoveAbsence(selectedAbsence)}
-                className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
-              >
-                다시 야자 참가하기
-              </button>
-              <button
+                type="button"
                 onClick={() => setSelectedAbsence(null)}
-                className="flex-1 px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg transition-colors"
+                className="px-4 py-3 bg-gray-300 hover:bg-gray-400 active:bg-gray-500 text-gray-800 font-semibold rounded-lg transition-colors touch-manipulation"
               >
                 닫기
+              </button>
+              <button
+                type="button"
+                onClick={() => handleRemoveAbsence(selectedAbsence)}
+                className="px-4 py-3 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-semibold rounded-lg transition-colors touch-manipulation"
+              >
+                다시 참가
               </button>
             </div>
           </div>
@@ -454,12 +468,12 @@ function StatisticsView({ classNumber, students }: { classNumber: number; studen
     .slice(0, 5)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* 필터 및 검색 */}
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold mb-4">야자 통계</h2>
+      <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md">
+        <h2 className="text-xl sm:text-2xl font-bold mb-4">야자 통계</h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4">
           {/* 날짜 범위 */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -469,7 +483,7 @@ function StatisticsView({ classNumber, students }: { classNumber: number; studen
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
             />
           </div>
           <div>
@@ -480,7 +494,7 @@ function StatisticsView({ classNumber, students }: { classNumber: number; studen
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
             />
           </div>
 
@@ -492,7 +506,7 @@ function StatisticsView({ classNumber, students }: { classNumber: number; studen
             <select
               value={selectedPeriod || ''}
               onChange={(e) => setSelectedPeriod(e.target.value ? Number(e.target.value) : null)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
             >
               <option value="">전체 차시</option>
               <option value="1">1차시</option>
@@ -509,7 +523,7 @@ function StatisticsView({ classNumber, students }: { classNumber: number; studen
             <select
               value={selectedStudent || ''}
               onChange={(e) => setSelectedStudent(e.target.value ? Number(e.target.value) : null)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
             >
               <option value="">전체 학생</option>
               {students.map(student => (
@@ -521,7 +535,7 @@ function StatisticsView({ classNumber, students }: { classNumber: number; studen
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           {/* 사유 필터 */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -530,7 +544,7 @@ function StatisticsView({ classNumber, students }: { classNumber: number; studen
             <select
               value={selectedReason || ''}
               onChange={(e) => setSelectedReason(e.target.value || null)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
             >
               <option value="">전체 사유</option>
               <option value="병원">병원</option>
@@ -551,7 +565,7 @@ function StatisticsView({ classNumber, students }: { classNumber: number; studen
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="이름, 사유 검색..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
             />
           </div>
         </div>
@@ -560,7 +574,7 @@ function StatisticsView({ classNumber, students }: { classNumber: number; studen
           <button
             onClick={loadStatistics}
             disabled={loading}
-            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:bg-gray-400"
+            className="w-full sm:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-lg transition-colors disabled:bg-gray-400 touch-manipulation font-semibold"
           >
             {loading ? '로딩 중...' : '조회'}
           </button>
@@ -568,44 +582,44 @@ function StatisticsView({ classNumber, students }: { classNumber: number; studen
       </div>
 
       {/* 통계 카드 */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <div className="text-sm text-gray-600 mb-2">총 불참 횟수</div>
-          <div className="text-3xl font-bold text-blue-600">{totalAbsences}회</div>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md">
+          <div className="text-xs sm:text-sm text-gray-600 mb-2">총 불참 횟수</div>
+          <div className="text-2xl sm:text-3xl font-bold text-blue-600">{totalAbsences}회</div>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <div className="text-sm text-gray-600 mb-2">야자 1차시 불참</div>
-          <div className="text-3xl font-bold text-blue-600">{period1Count}회</div>
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md">
+          <div className="text-xs sm:text-sm text-gray-600 mb-2">1차시 불참</div>
+          <div className="text-2xl sm:text-3xl font-bold text-blue-600">{period1Count}회</div>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <div className="text-sm text-gray-600 mb-2">야자 2차시 불참</div>
-          <div className="text-3xl font-bold text-blue-600">{period2Count}회</div>
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md">
+          <div className="text-xs sm:text-sm text-gray-600 mb-2">2차시 불참</div>
+          <div className="text-2xl sm:text-3xl font-bold text-blue-600">{period2Count}회</div>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <div className="text-sm text-gray-600 mb-2">야자 3차시 불참</div>
-          <div className="text-3xl font-bold text-blue-600">{period3Count}회</div>
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md">
+          <div className="text-xs sm:text-sm text-gray-600 mb-2">3차시 불참</div>
+          <div className="text-2xl sm:text-3xl font-bold text-blue-600">{period3Count}회</div>
         </div>
       </div>
 
       {/* 사유별 통계 */}
       {Object.keys(reasonStats).length > 0 && (
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h3 className="text-xl font-bold mb-4">불참 사유 TOP 5</h3>
-          <div className="space-y-2">
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md">
+          <h3 className="text-lg sm:text-xl font-bold mb-4">불참 사유 TOP 5</h3>
+          <div className="space-y-2 sm:space-y-3">
             {Object.entries(reasonStats)
               .sort((a: any, b: any) => b[1] - a[1])
               .slice(0, 5)
               .map(([reason, count]: any) => (
                 <div key={reason} className="flex items-center justify-between">
-                  <span className="text-gray-700">{reason}</span>
+                  <span className="text-sm sm:text-base text-gray-700">{reason}</span>
                   <div className="flex items-center gap-2">
-                    <div className="w-32 bg-gray-200 rounded-full h-2">
+                    <div className="w-20 sm:w-32 bg-gray-200 rounded-full h-2">
                       <div
                         className="bg-blue-600 h-2 rounded-full"
                         style={{ width: `${(count / totalAbsences) * 100}%` }}
                       ></div>
                     </div>
-                    <span className="text-sm font-semibold text-gray-900 w-12 text-right">
+                    <span className="text-xs sm:text-sm font-semibold text-gray-900 w-10 sm:w-12 text-right">
                       {count}회
                     </span>
                   </div>
@@ -616,86 +630,128 @@ function StatisticsView({ classNumber, students }: { classNumber: number; studen
       )}
 
       {/* 상세 테이블 */}
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-xl font-bold mb-4">상세 기록</h3>
+      <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md">
+        <h3 className="text-lg sm:text-xl font-bold mb-4">상세 기록</h3>
         
         {filteredStats.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    날짜
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    차시
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    이름
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    번호
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    사유
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    상세
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    등록 기기
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    액션
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredStats.map((absence, idx) => (
-                  <tr key={idx} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {absence.date}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      야자 {absence.period}차시
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {absence.studentName}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600 font-semibold">
-                      {absence.studentId}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded">
-                        {absence.reason}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      {absence.detail || '-'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                      {absence.deviceInfo ? (
-                        <div className="flex items-center gap-1">
-                          <span>💻</span>
-                          <span>{absence.deviceInfo.browser} / {absence.deviceInfo.os}</span>
-                        </div>
-                      ) : (
-                        <span className="text-gray-400">-</span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <button
-                        onClick={() => setSelectedRecord(absence)}
-                        className="text-blue-600 hover:text-blue-800 font-medium"
-                      >
-                        상세보기
-                      </button>
-                    </td>
+          <>
+            {/* 데스크톱 테이블 뷰 */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      날짜
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      차시
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      이름
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      번호
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      사유
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      상세
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      등록 기기
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      액션
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredStats.map((absence, idx) => (
+                    <tr key={idx} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {absence.date}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        야자 {absence.period}차시
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {absence.studentName}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600 font-semibold">
+                        {absence.studentId}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded">
+                          {absence.reason}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        {absence.detail || '-'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        {absence.deviceInfo ? (
+                          <div className="flex items-center gap-1">
+                            <span>💻</span>
+                            <span>{absence.deviceInfo.browser} / {absence.deviceInfo.os}</span>
+                          </div>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        <button
+                          onClick={() => setSelectedRecord(absence)}
+                          className="text-blue-600 hover:text-blue-800 font-medium"
+                        >
+                          상세보기
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* 모바일 카드 뷰 */}
+            <div className="md:hidden space-y-3">
+              {filteredStats.map((absence, idx) => (
+                <div
+                  key={idx}
+                  onClick={() => setSelectedRecord(absence)}
+                  className="bg-gray-50 p-4 rounded-lg border border-gray-200 active:bg-gray-100 touch-manipulation"
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <div className="text-sm text-gray-600">{absence.date}</div>
+                      <div className="text-lg font-bold text-gray-800">{absence.studentName}</div>
+                    </div>
+                    <span className="px-2 py-1 bg-blue-600 text-white text-xs rounded font-semibold">
+                      {absence.studentId}번
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                      {absence.period}차시
+                    </span>
+                    <span className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded">
+                      {absence.reason}
+                    </span>
+                  </div>
+                  {absence.detail && (
+                    <div className="text-sm text-gray-600 mt-2">
+                      {absence.detail}
+                    </div>
+                  )}
+                  {absence.deviceInfo && (
+                    <div className="text-xs text-gray-500 mt-2">
+                      💻 {absence.deviceInfo.browser} / {absence.deviceInfo.os}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </>
         ) : (
           <p className="text-gray-500 text-center py-8">
             {loading ? '로딩 중...' : '검색 결과가 없습니다'}
@@ -706,67 +762,69 @@ function StatisticsView({ classNumber, students }: { classNumber: number; studen
       {/* 상세 정보 모달 */}
       {selectedRecord && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50 overflow-y-auto"
           onClick={() => setSelectedRecord(null)}
         >
           <div
-            className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            className="bg-white rounded-lg p-4 sm:p-6 max-w-2xl w-full my-4 max-h-[95vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold">불참 상세 정보</h2>
+              <h2 className="text-xl sm:text-2xl font-bold">불참 상세 정보</h2>
               <button
+                type="button"
                 onClick={() => setSelectedRecord(null)}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-gray-500 hover:text-gray-700 text-2xl w-8 h-8 flex items-center justify-center"
+                aria-label="닫기"
               >
-                ✕
+                ×
               </button>
             </div>
 
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <div className="text-sm text-gray-600">날짜</div>
-                  <div className="text-lg font-semibold">{selectedRecord.date}</div>
+                  <div className="text-base sm:text-lg font-semibold">{selectedRecord.date}</div>
                 </div>
                 <div>
                   <div className="text-sm text-gray-600">차시</div>
-                  <div className="text-lg font-semibold">야자 {selectedRecord.period}차시</div>
+                  <div className="text-base sm:text-lg font-semibold">야자 {selectedRecord.period}차시</div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <div className="text-sm text-gray-600">학생 이름</div>
-                  <div className="text-lg font-semibold">{selectedRecord.studentName}</div>
+                  <div className="text-base sm:text-lg font-semibold">{selectedRecord.studentName}</div>
                 </div>
                 <div>
                   <div className="text-sm text-gray-600">학생 번호</div>
-                  <div className="text-lg font-semibold text-blue-600">{selectedRecord.studentId}번</div>
+                  <div className="text-base sm:text-lg font-semibold text-blue-600">{selectedRecord.studentId}번</div>
                 </div>
               </div>
 
               <div>
                 <div className="text-sm text-gray-600">불참 사유</div>
-                <div className="text-lg font-semibold">{selectedRecord.reason}</div>
+                <div className="text-base sm:text-lg font-semibold">{selectedRecord.reason}</div>
                 {selectedRecord.detail && (
-                  <div className="mt-1 text-gray-700">{selectedRecord.detail}</div>
+                  <div className="mt-1 text-sm sm:text-base text-gray-700">{selectedRecord.detail}</div>
                 )}
               </div>
 
               <div className="border-t pt-4">
-                <h3 className="text-lg font-semibold mb-3">📱 등록 기기 정보</h3>
+                <h3 className="text-base sm:text-lg font-semibold mb-3">📱 등록 기기 정보</h3>
                 {selectedRecord.deviceInfo ? (
-                  <div className="bg-gray-50 p-4 rounded-lg space-y-2">
-                    <div className="flex justify-between">
+                  <div className="bg-gray-50 p-3 sm:p-4 rounded-lg space-y-2">
+                    <div className="flex justify-between text-sm sm:text-base">
                       <span className="text-gray-600">브라우저:</span>
                       <span className="font-medium">{selectedRecord.deviceInfo.browser}</span>
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between text-sm sm:text-base">
                       <span className="text-gray-600">운영체제:</span>
                       <span className="font-medium">{selectedRecord.deviceInfo.os}</span>
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between text-sm sm:text-base">
                       <span className="text-gray-600">플랫폼:</span>
                       <span className="font-medium">{selectedRecord.deviceInfo.platform}</span>
                     </div>
@@ -778,7 +836,7 @@ function StatisticsView({ classNumber, students }: { classNumber: number; studen
                     </div>
                   </div>
                 ) : (
-                  <div className="text-gray-500 text-center py-4">
+                  <div className="text-gray-500 text-center py-4 text-sm">
                     기기 정보가 기록되지 않았습니다
                   </div>
                 )}
@@ -786,16 +844,17 @@ function StatisticsView({ classNumber, students }: { classNumber: number; studen
 
               <div>
                 <div className="text-sm text-gray-600">등록 시간</div>
-                <div className="text-lg font-semibold">
+                <div className="text-base sm:text-lg font-semibold">
                   {selectedRecord.createdAt ? new Date(selectedRecord.createdAt.seconds * 1000).toLocaleString('ko-KR') : '-'}
                 </div>
               </div>
             </div>
 
-            <div className="mt-6 flex justify-end">
+            <div className="mt-6">
               <button
+                type="button"
                 onClick={() => setSelectedRecord(null)}
-                className="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-colors"
+                className="w-full px-6 py-3 bg-gray-200 hover:bg-gray-300 active:bg-gray-400 text-gray-800 font-semibold rounded-lg transition-colors touch-manipulation"
               >
                 닫기
               </button>

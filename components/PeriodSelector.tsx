@@ -13,19 +13,20 @@ const periodTimes = {
 
 export default function PeriodSelector({ currentPeriod, onPeriodChange }: PeriodSelectorProps) {
   return (
-    <div className="flex gap-2">
+    <div className="grid grid-cols-3 gap-2">
       {[1, 2, 3].map((period) => (
         <button
           key={period}
+          type="button"
           onClick={() => onPeriodChange(period as 1 | 2 | 3)}
-          className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+          className={`px-3 py-3 rounded-lg font-semibold transition-colors touch-manipulation ${
             currentPeriod === period
               ? 'bg-blue-600 text-white shadow-md'
-              : 'bg-white text-gray-700 border-2 border-gray-300 hover:border-blue-400'
+              : 'bg-white text-gray-700 border-2 border-gray-300 active:border-blue-400'
           }`}
         >
           <div className="text-center">
-            <div>{period}차시</div>
+            <div className="text-sm sm:text-base">{period}차시</div>
             <div className="text-xs mt-1 opacity-75">
               {periodTimes[period as 1 | 2 | 3]}
             </div>
