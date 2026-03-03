@@ -4,6 +4,21 @@ import './globals.css'
 export const metadata: Metadata = {
   title: '야자 관리 시스템',
   description: '2학년 야자 참여 현황 관리',
+  icons: {
+    icon: '/icon.png',
+    apple: '/icon.png',
+  },
+  openGraph: {
+    title: '야자 관리 시스템',
+    description: '2학년 야자 참여 현황 관리',
+    images: ['/og-image.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: '야자 관리 시스템',
+    description: '2학년 야자 참여 현황 관리',
+    images: ['/og-image.png'],
+  },
 }
 
 export const viewport: Viewport = {
