@@ -17,6 +17,7 @@ export default function StudentGrid({ students, attendanceStatus, onAbsenceClick
           const status = attendanceStatus.find((s) => s.studentId === student.id)
           const isPresent = status?.isPresent ?? true
           const reason = status?.absence?.reason
+          const detail = status?.absence?.detail
           
           return (
             <button
@@ -44,7 +45,7 @@ export default function StudentGrid({ students, attendanceStatus, onAbsenceClick
                 </div>
                 {!isPresent && (
                   <div className="text-[9px] sm:text-[11px] leading-tight opacity-90 px-1 text-center break-all">
-                    사유:{reason || '미입력'}
+                    사유:{reason || '미입력'}{detail && `(${detail})`}
                   </div>
                 )}
               </div>
