@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { db } from '@/lib/firebase'
-import { collection, query, where, getDocs, deleteDoc, doc } from 'firebase/firestore'
+import { collection, query, where, onSnapshot, deleteDoc, doc } from 'firebase/firestore'
 import type { Absence, Student, AttendanceStatus } from '@/types'
 import StudentGrid from '@/components/StudentGrid'
 import PeriodSelector from '@/components/PeriodSelector'
@@ -54,54 +54,58 @@ export default function CurrentPage({ params }: PageProps) {
   }, [])
 
   useEffect(() => {
-    loadAttendance()
-  }, [classNumber, currentDate, currentPeriod])
+    if (students.length === 0) return
 
-  const loadAttendance = async () => {
-    try {
-      const q = query(
-        collection(db, 'absences'),
-        where('classNumber', '==', classNumber),
-        where('date', '==', currentDate),
-        where('period', '==', currentPeriod)
-      )
-      
-      const querySnapshot = await getDocs(q)
-      const absences: Absence[] = []
-      
-      querySnapshot.forEach((document) => {
-        const data = document.data()
-        absences.push({
-          id: document.id,
-          studentId: data.studentId,
-          studentName: data.studentName,
-          reason: data.reason,
-          detail: data.detail,
-          date: data.date,
-          period: data.period,
-          createdAt: data.createdAt
-        } as Absence)
-      })
+    const q = query(
+      collection(db, 'absences'),
+      where('classNumber', '==', classNumber),
+      where('date', '==', currentDate),
+      where('period', '==', currentPeriod)
+    )
+    
+    // 실시간 리스너 설정
+    const unsubscribe = onSnapshot(q, 
+      (querySnapshot) => {
+        const absences: Absence[] = []
+        
+        querySnapshot.forEach((document) => {
+          const data = document.data()
+          absences.push({
+            id: document.id,
+            studentId: data.studentId,
+            studentName: data.studentName,
+            reason: data.reason,
+            detail: data.detail,
+            date: data.date,
+            period: data.period,
+            createdAt: data.createdAt
+          } as Absence)
+        })
 
-      const status: AttendanceStatus[] = students.map((student) => {
-        const absence = absences.find((a) => a.studentId === student.id)
-        return {
+        const status: AttendanceStatus[] = students.map((student) => {
+          const absence = absences.find((a) => a.studentId === student.id)
+          return {
+            studentId: student.id,
+            isPresent: !absence,
+            absence: absence
+          }
+        })
+
+        setAttendanceStatus(status)
+      },
+      (error) => {
+        console.error('출결 데이터 실시간 업데이트 실패:', error)
+        const status: AttendanceStatus[] = students.map((student) => ({
           studentId: student.id,
-          isPresent: !absence,
-          absence: absence
-        }
-      })
+          isPresent: true
+        }))
+        setAttendanceStatus(status)
+      }
+    )
 
-      setAttendanceStatus(status)
-    } catch (error) {
-      console.error('출결 데이터 로드 실패:', error)
-      const status: AttendanceStatus[] = students.map((student) => ({
-        studentId: student.id,
-        isPresent: true
-      }))
-      setAttendanceStatus(status)
-    }
-  }
+    // 컴포넌트 언마운트 시 리스너 해제
+    return () => unsubscribe()
+  }, [classNumber, currentDate, currentPeriod, students])
 
   const handleRemoveAbsence = async (absence: Absence) => {
     if (!confirm('야자 참가로 변경하시겠습니까?')) return
@@ -109,7 +113,7 @@ export default function CurrentPage({ params }: PageProps) {
     try {
       if (absence.id) {
         await deleteDoc(doc(db, 'absences', absence.id))
-        await loadAttendance()
+        // onSnapshot이 자동으로 업데이트하므로 별도 로드 불필요
         setSelectedAbsence(null)
       }
     } catch (error) {

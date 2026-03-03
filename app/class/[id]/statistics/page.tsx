@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { db } from '@/lib/firebase'
-import { collection, query, where, getDocs } from 'firebase/firestore'
+import { collection, query, where, onSnapshot } from 'firebase/firestore'
 import type { Student } from '@/types'
 
 interface PageProps {
@@ -21,6 +21,7 @@ export default function StatisticsPage({ params }: PageProps) {
   const [filteredStats, setFilteredStats] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
   const [selectedRecord, setSelectedRecord] = useState<any>(null)
+  const [isListening, setIsListening] = useState(false)
   
   const [selectedStudent, setSelectedStudent] = useState<number | null>(null)
   const [selectedPeriod, setSelectedPeriod] = useState<number | null>(null)
@@ -36,42 +37,48 @@ export default function StatisticsPage({ params }: PageProps) {
   }, [])
 
   useEffect(() => {
-    loadStatistics()
-  }, [])
+    if (!isListening) return
 
-  const loadStatistics = async () => {
+    setLoading(true)
+    
+    const q = query(
+      collection(db, 'absences'),
+      where('classNumber', '==', classNumber),
+      where('date', '>=', startDate),
+      where('date', '<=', endDate)
+    )
+    
+    // 실시간 리스너 설정
+    const unsubscribe = onSnapshot(q,
+      (querySnapshot) => {
+        const absences: any[] = []
+        
+        querySnapshot.forEach((document) => {
+          const data = document.data()
+          absences.push({ id: document.id, ...data })
+        })
+
+        absences.sort((a, b) => b.date.localeCompare(a.date))
+        
+        setStatistics(absences)
+        setFilteredStats(absences)
+        setLoading(false)
+      },
+      (error) => {
+        console.error('통계 실시간 업데이트 실패:', error)
+        setLoading(false)
+      }
+    )
+
+    return () => unsubscribe()
+  }, [classNumber, startDate, endDate, isListening])
+
+  const loadStatistics = () => {
     if (!startDate) {
       alert('시작 날짜를 선택하세요')
       return
     }
-
-    setLoading(true)
-    try {
-      const q = query(
-        collection(db, 'absences'),
-        where('classNumber', '==', classNumber),
-        where('date', '>=', startDate),
-        where('date', '<=', endDate)
-      )
-      
-      const querySnapshot = await getDocs(q)
-      const absences: any[] = []
-      
-      querySnapshot.forEach((document) => {
-        const data = document.data()
-        absences.push({ id: document.id, ...data })
-      })
-
-      absences.sort((a, b) => b.date.localeCompare(a.date))
-      
-      setStatistics(absences)
-      setFilteredStats(absences)
-    } catch (error) {
-      console.error('통계 로드 실패:', error)
-      alert('통계를 불러오는데 실패했습니다.')
-    } finally {
-      setLoading(false)
-    }
+    setIsListening(true)
   }
 
   useEffect(() => {
