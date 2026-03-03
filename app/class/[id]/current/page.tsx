@@ -126,52 +126,42 @@ export default function CurrentPage({ params }: PageProps) {
     <div className="min-h-screen bg-gray-50 p-3 sm:p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         {/* 헤더 */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 gap-4">
-          <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 sm:mb-10 gap-5">
+          <div className="flex items-center gap-4 sm:gap-5 w-full sm:w-auto">
             <Link
               href={`/class/${classNumber}`}
-              className="px-3 py-2 sm:px-4 sm:py-2 bg-gray-200 hover:bg-gray-300 active:bg-gray-400 rounded-lg transition-colors text-sm sm:text-base touch-manipulation"
+              className="px-5 py-3 sm:px-6 sm:py-4 bg-gray-200 hover:bg-gray-300 active:bg-gray-400 rounded-lg transition-colors text-lg sm:text-xl font-bold touch-manipulation"
             >
               ← 뒤로
             </Link>
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-800">
               2학년 {classNumber}반 야자 현황
             </h1>
           </div>
         </div>
 
         {/* 날짜 및 차시 선택 */}
-        <div className="bg-white p-5 sm:p-6 md:p-8 rounded-lg shadow-md mb-6 sm:mb-8">
-          <div className="flex flex-col gap-5 sm:gap-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
-              <div>
-                <label className="block text-base sm:text-lg font-medium text-gray-700 mb-3">
-                  날짜
-                </label>
-                <input
-                  type="date"
-                  value={currentDate}
-                  onChange={(e) => setCurrentDate(e.target.value)}
-                  className="w-full px-5 py-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base sm:text-lg"
-                />
-              </div>
-              <div>
-                <label className="block text-base sm:text-lg font-medium text-gray-700 mb-3">
-                  차시
-                </label>
-                <PeriodSelector
-                  currentPeriod={currentPeriod}
-                  onPeriodChange={setCurrentPeriod}
-                />
-              </div>
+        <div className="bg-white p-6 sm:p-8 md:p-10 rounded-lg shadow-md mb-8 sm:mb-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
+            <div>
+              <label className="block text-xl sm:text-2xl md:text-3xl font-bold text-gray-700 mb-4">
+                날짜
+              </label>
+              <input
+                type="date"
+                value={currentDate}
+                onChange={(e) => setCurrentDate(e.target.value)}
+                className="w-full px-6 py-5 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-xl sm:text-2xl"
+              />
             </div>
-            <div className="w-full pt-2">
-              <button
-                onClick={() => router.push(`/class/${classNumber}/add`)}
-                className="w-full px-6 py-5 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-bold rounded-lg transition-colors shadow-lg touch-manipulation text-lg sm:text-xl"
-              >
-                ➕ 야자 불참 추가하기
-              </button>
+            <div>
+              <label className="block text-xl sm:text-2xl md:text-3xl font-bold text-gray-700 mb-4">
+                차시
+              </label>
+              <PeriodSelector
+                currentPeriod={currentPeriod}
+                onPeriodChange={setCurrentPeriod}
+              />
             </div>
           </div>
         </div>
