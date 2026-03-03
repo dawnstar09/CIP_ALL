@@ -21,7 +21,7 @@ export default function StatisticsPage({ params }: PageProps) {
   const [filteredStats, setFilteredStats] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
   const [selectedRecord, setSelectedRecord] = useState<any>(null)
-  const [isListening, setIsListening] = useState(false)
+  const [isListening, setIsListening] = useState(true) // 자동 시작
   
   const [selectedStudent, setSelectedStudent] = useState<number | null>(null)
   const [selectedPeriod, setSelectedPeriod] = useState<number | null>(null)
@@ -72,14 +72,6 @@ export default function StatisticsPage({ params }: PageProps) {
 
     return () => unsubscribe()
   }, [classNumber, startDate, endDate, isListening])
-
-  const loadStatistics = () => {
-    if (!startDate) {
-      alert('시작 날짜를 선택하세요')
-      return
-    }
-    setIsListening(true)
-  }
 
   useEffect(() => {
     let filtered = [...statistics]
@@ -221,16 +213,6 @@ export default function StatisticsPage({ params }: PageProps) {
                 className="w-full px-4 py-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
               />
             </div>
-          </div>
-
-          <div className="mt-6">
-            <button
-              onClick={loadStatistics}
-              disabled={loading}
-              className="w-full sm:w-auto px-8 py-4 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold rounded-lg transition-colors disabled:bg-gray-400 touch-manipulation text-lg"
-            >
-              {loading ? '로딩 중...' : '조회'}
-            </button>
           </div>
         </div>
 
