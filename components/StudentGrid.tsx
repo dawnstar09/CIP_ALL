@@ -37,12 +37,13 @@ export default function StudentGrid({ students, attendanceStatus, onAbsenceClick
               `}
               disabled={isPresent}
             >
-              <div className="flex flex-col items-center justify-between h-full py-1">
+              <div className="flex flex-col items-center justify-center h-full gap-1">
                 <div className="text-2xl sm:text-3xl">{student.id}</div>
-                <div className="text-xs sm:text-sm mt-1">번</div>
-                {!isPresent && reason && (
-                  <div className="text-[10px] sm:text-xs opacity-90 mt-auto truncate w-full px-1">
-                    사유:{reason}
+                {isPresent ? (
+                  <div className="text-xs sm:text-sm">번</div>
+                ) : (
+                  <div className="text-[9px] sm:text-[11px] leading-tight opacity-90 px-1 text-center break-all">
+                    사유:{reason || '미입력'}
                   </div>
                 )}
               </div>
