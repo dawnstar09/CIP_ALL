@@ -182,61 +182,46 @@ export default function CurrentPage({ params }: PageProps) {
           attendanceStatus={attendanceStatus}
           onAbsenceClick={(absence) => setSelectedAbsence(absence)}
         />
-      </div>
 
-      {/* 불참 상세 모달 */}
-      {selectedAbsence && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-3 sm:p-4 z-50"
-          onClick={() => setSelectedAbsence(null)}
-        >
-          <div
-            className="bg-white rounded-lg p-5 sm:p-6 md:p-8 max-w-md w-full mx-3"
-            onClick={(e) => e.stopPropagation()}
-          >
+        {/* 선택된 불참 정보 (화면 하단 고정) */}
+        {selectedAbsence && (
+          <div className="mt-8 bg-blue-50 border-4 border-blue-500 rounded-lg p-5 sm:p-6 md:p-8 shadow-2xl">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl sm:text-3xl font-bold">불참 정보</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold text-blue-900">📋 선택된 불참 정보</h2>
               <button
                 type="button"
                 onClick={() => setSelectedAbsence(null)}
-                className="text-gray-500 hover:text-gray-700 text-3xl w-10 h-10 flex items-center justify-center touch-manipulation"
-                aria-label="닫기"
-              >
-                ×
-              </button>
-            </div>
-            <div className="space-y-4 mb-8">
-              <div className="text-base sm:text-lg">
-                <span className="font-semibold">학생:</span> {selectedAbsence.studentName}
-              </div>
-              <div className="text-base sm:text-lg">
-                <span className="font-semibold">사유:</span> {selectedAbsence.reason}
-              </div>
-              {selectedAbsence.detail && (
-                <div className="text-base sm:text-lg">
-                  <span className="font-semibold">상세:</span> {selectedAbsence.detail}
-                </div>
-              )}
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <button
-                type="button"
-                onClick={() => setSelectedAbsence(null)}
-                className="px-5 py-4 bg-gray-300 hover:bg-gray-400 active:bg-gray-500 text-gray-800 font-bold rounded-lg transition-colors touch-manipulation text-base sm:text-lg"
+                className="px-5 py-3 bg-gray-300 hover:bg-gray-400 active:bg-gray-500 text-gray-800 font-bold rounded-lg transition-colors touch-manipulation text-base sm:text-lg"
               >
                 닫기
               </button>
-              <button
-                type="button"
-                onClick={() => handleRemoveAbsence(selectedAbsence)}
-                className="px-5 py-4 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-bold rounded-lg transition-colors touch-manipulation text-base sm:text-lg"
-              >
-                다시 참가
-              </button>
             </div>
+            <div className="space-y-5 mb-8 bg-white p-5 rounded-lg">
+              <div className="text-xl sm:text-2xl">
+                <span className="font-semibold text-gray-700">학생:</span>{' '}
+                <span className="text-blue-700">{selectedAbsence.studentName}</span>
+              </div>
+              <div className="text-xl sm:text-2xl">
+                <span className="font-semibold text-gray-700">사유:</span>{' '}
+                <span className="text-gray-900">{selectedAbsence.reason}</span>
+              </div>
+              {selectedAbsence.detail && (
+                <div className="text-xl sm:text-2xl">
+                  <span className="font-semibold text-gray-700">상세:</span>{' '}
+                  <span className="text-gray-900">{selectedAbsence.detail}</span>
+                </div>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={() => handleRemoveAbsence(selectedAbsence)}
+              className="w-full px-6 py-6 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-bold rounded-lg transition-colors touch-manipulation text-xl sm:text-2xl shadow-lg"
+            >
+              ✅ 다시 참가로 변경
+            </button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }
