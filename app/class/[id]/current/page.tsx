@@ -165,14 +165,6 @@ export default function CurrentPage({ params }: PageProps) {
                 />
               </div>
             </div>
-            <div className="w-full pt-2">
-              <button
-                onClick={() => router.push(`/class/${classNumber}/add`)}
-                className="w-full px-6 py-5 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-bold rounded-lg transition-colors shadow-lg touch-manipulation text-lg sm:text-xl"
-              >
-                ➕ 야자 불참 추가하기
-              </button>
-            </div>
           </div>
         </div>
 
