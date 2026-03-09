@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { db } from '@/lib/firebase'
-import { collection, query, where, onSnapshot, deleteDoc, doc } from 'firebase/firestore'
+import { collection, query, where, onSnapshot } from 'firebase/firestore'
 import type { Student } from '@/types'
 
 interface PageProps {
@@ -106,20 +106,6 @@ export default function StatisticsPage({ params }: PageProps) {
 
     setFilteredStats(filtered)
   }, [statistics, selectedStudent, selectedPeriod, selectedReason, searchQuery])
-
-  const handleDelete = async (id: string) => {
-    if (!confirm('정말로 이 불참 기록을 삭제하시겠습니까?')) {
-      return
-    }
-    
-    try {
-      await deleteDoc(doc(db, 'absences', id))
-      alert('삭제되었습니다')
-    } catch (error) {
-      console.error('삭제 실패:', error)
-      alert('삭제에 실패했습니다.')
-    }
-  }
 
   const totalAbsences = filteredStats.length
   const period1Count = filteredStats.filter(item => item.period === 1).length
@@ -274,7 +260,6 @@ export default function StatisticsPage({ params }: PageProps) {
                   <th className="px-4 py-3 text-left text-sm sm:text-base font-semibold text-gray-700">이름</th>
                   <th className="px-4 py-3 text-left text-sm sm:text-base font-semibold text-gray-700">번호</th>
                   <th className="px-4 py-3 text-left text-sm sm:text-base font-semibold text-gray-700">사유</th>
-                  <th className="px-4 py-3 text-left text-sm sm:text-base font-semibold text-gray-700">액션</th>
                 </tr>
               </thead>
               <tbody>
@@ -290,14 +275,6 @@ export default function StatisticsPage({ params }: PageProps) {
                       ) : (
                         absence.reason
                       )}
-                    </td>
-                    <td className="px-4 py-3">
-                      <button
-                        onClick={() => handleDelete(absence.id)}
-                        className="text-red-500 hover:text-red-700 font-semibold text-sm sm:text-base"
-                      >
-                        삭제
-                      </button>
                     </td>
                   </tr>
                 ))}
