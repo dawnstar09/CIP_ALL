@@ -117,7 +117,8 @@ export default function AddPage({ params }: PageProps) {
         })
       }
       
-      alert('불참 기록이 추가되었습니다')
+      const periodsText = selectedPeriods.map(p => `${p}차시`).join(', ')
+      alert(`${student.name}(${student.id}번) ${periodsText} 불참 기록이 추가되었습니다`)
       router.push(`/class/${classNumber}/current`)
     } catch (error) {
       console.error('불참 추가 실패:', error)

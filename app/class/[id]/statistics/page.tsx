@@ -247,34 +247,6 @@ export default function StatisticsPage({ params }: PageProps) {
           </div>
         </div>
 
-        {/* 사유별 통계 */}
-        {Object.keys(reasonStats).length > 0 && (
-          <div className="bg-white p-5 sm:p-6 md:p-8 rounded-lg shadow-md mb-6 sm:mb-8">
-            <h3 className="text-xl sm:text-2xl font-bold mb-5 sm:mb-6">불참 사유 TOP 5</h3>
-            <div className="space-y-4 sm:space-y-5">
-              {Object.entries(reasonStats)
-                .sort((a: any, b: any) => b[1] - a[1])
-                .slice(0, 5)
-                .map(([reason, count]: any) => (
-                  <div key={reason} className="flex items-center justify-between gap-4">
-                    <span className="text-base sm:text-lg text-gray-700 font-medium min-w-[80px]">{reason}</span>
-                    <div className="flex items-center gap-3 flex-1">
-                      <div className="flex-1 bg-gray-200 rounded-full h-3">
-                        <div
-                          className="bg-blue-600 h-3 rounded-full"
-                          style={{ width: `${(count / totalAbsences) * 100}%` }}
-                        ></div>
-                      </div>
-                      <span className="text-sm sm:text-base font-bold text-gray-900 min-w-[60px] text-right">
-                        {count}회
-                      </span>
-                    </div>
-                  </div>
-                ))}
-            </div>
-          </div>
-        )}
-
         {/* 상세 기록 - 모바일 카드 뷰 */}
         <div className="bg-white p-5 sm:p-6 md:p-8 rounded-lg shadow-md">
           <h3 className="text-xl sm:text-2xl font-bold mb-5 sm:mb-6">상세 기록</h3>
