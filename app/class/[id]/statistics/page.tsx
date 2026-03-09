@@ -74,8 +74,8 @@ export default function StatisticsPage({ params }: PageProps) {
           const dateCompare = b.date.localeCompare(a.date)
           if (dateCompare !== 0) return dateCompare
           
-          // 같은 날짜면 이름순 (오름차순)
-          return a.studentName.localeCompare(b.studentName)
+          // 같은 날짜면 번호순 (오름차순)
+          return a.studentId - b.studentId
         })
         
         setStatistics(absences)
@@ -264,8 +264,8 @@ export default function StatisticsPage({ params }: PageProps) {
                 <tr className="border-b-2 border-gray-300">
                   <th className="px-4 py-3 text-left text-sm sm:text-base font-semibold text-gray-700">날짜</th>
                   <th className="px-4 py-3 text-left text-sm sm:text-base font-semibold text-gray-700">차시</th>
-                  <th className="px-4 py-3 text-left text-sm sm:text-base font-semibold text-gray-700">이름</th>
                   <th className="px-4 py-3 text-left text-sm sm:text-base font-semibold text-gray-700">번호</th>
+                  <th className="px-4 py-3 text-left text-sm sm:text-base font-semibold text-gray-700">이름</th>
                   <th className="px-4 py-3 text-left text-sm sm:text-base font-semibold text-gray-700">사유</th>
                 </tr>
               </thead>
@@ -274,8 +274,8 @@ export default function StatisticsPage({ params }: PageProps) {
                   <tr key={idx} className="border-b border-gray-200 hover:bg-gray-50">
                     <td className="px-4 py-3 text-sm sm:text-base">{absence.date}</td>
                     <td className="px-4 py-3 text-sm sm:text-base">야자 {absence.period}차시</td>
-                    <td className="px-4 py-3 text-sm sm:text-base">{absence.studentName}</td>
                     <td className="px-4 py-3 text-sm sm:text-base">{absence.studentId}</td>
+                    <td className="px-4 py-3 text-sm sm:text-base">{absence.studentName}</td>
                     <td className="px-4 py-3 text-sm sm:text-base">
                       {absence.detail ? (
                         <span>{absence.reason}: {absence.detail}</span>
