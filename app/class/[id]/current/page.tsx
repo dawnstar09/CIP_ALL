@@ -209,7 +209,7 @@ export default function CurrentPage({ params }: PageProps) {
                       </div>
                     )}
                     {!isPresent && (
-                      <div className="text-[10px] leading-tight opacity-90 px-1 text-center break-all mt-0.5">
+                      <div className="text-[11px] leading-tight opacity-90 px-1 text-center break-all mt-0.5">
                         {displayText}
                       </div>
                     )}
