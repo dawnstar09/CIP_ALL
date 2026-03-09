@@ -414,11 +414,22 @@ export default function StatisticsPage({ params }: PageProps) {
               </div>
             </div>
 
-            <div className="mt-8">
+            <div className="mt-8 flex flex-col sm:flex-row gap-3">
+              <button
+                type="button"
+                onClick={async () => {
+                  await handleRejoin(selectedRecord.id, selectedRecord.studentName)
+                  setSelectedRecord(null)
+                }}
+                disabled={deletingId === selectedRecord.id}
+                className="flex-1 px-6 py-4 bg-green-500 hover:bg-green-600 active:bg-green-700 disabled:bg-gray-400 text-white font-bold rounded-lg transition-colors touch-manipulation text-lg"
+              >
+                {deletingId === selectedRecord.id ? '처리중...' : '재참가 처리'}
+              </button>
               <button
                 type="button"
                 onClick={() => setSelectedRecord(null)}
-                className="w-full px-6 py-4 bg-gray-200 hover:bg-gray-300 active:bg-gray-400 text-gray-800 font-bold rounded-lg transition-colors touch-manipulation text-lg"
+                className="flex-1 px-6 py-4 bg-gray-200 hover:bg-gray-300 active:bg-gray-400 text-gray-800 font-bold rounded-lg transition-colors touch-manipulation text-lg"
               >
                 닫기
               </button>
