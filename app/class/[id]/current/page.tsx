@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { db } from '@/lib/firebase'
-import { collection, query, where, onSnapshot, deleteDoc, doc } from 'firebase/firestore'
-import type { Absence, Student, AttendanceStatus } from '@/types'
+import { collection, query, where, onSnapshot, deleteDoc, doc, updateDoc } from 'firebase/firestore'
+import type { Absence, Student, AttendanceStatus, AbsenceReason } from '@/types'
 
 interface PageProps {
   params: {
@@ -37,6 +37,11 @@ export default function CurrentPage({ params }: PageProps) {
   const [selectedAbsence, setSelectedAbsence] = useState<Absence | null>(null)
   const [filterType, setFilterType] = useState<'all' | 'present' | 'absent' | 'reason'>('all')
   const [selectedReasonFilter, setSelectedReasonFilter] = useState<string | null>(null)
+  const [isEditing, setIsEditing] = useState(false)
+  const [editReason, setEditReason] = useState<AbsenceReason | ''>('')
+  const [editDetail, setEditDetail] = useState('')
+
+  const reasons: AbsenceReason[] = ['병원', '학원', '동아리', '방과후', '기타']
 
   useEffect(() => {
     // 5반 학생 명단
@@ -119,13 +124,43 @@ export default function CurrentPage({ params }: PageProps) {
     try {
       if (absence.id) {
         await deleteDoc(doc(db, 'absences', absence.id))
-        // onSnapshot이 자동으로 업데이트하므로 별도 로드 불필요
         setSelectedAbsence(null)
       }
     } catch (error) {
       console.error('불참 삭제 실패:', error)
       alert('변경에 실패했습니다.')
     }
+  }
+
+  const handleEditAbsence = async () => {
+    if (!selectedAbsence?.id || !editReason) {
+      alert('사유를 선택하세요')
+      return
+    }
+
+    if ((editReason === '동아리' || editReason === '방과후' || editReason === '기타') && !editDetail) {
+      alert('상세 사유를 입력하세요')
+      return
+    }
+
+    try {
+      await updateDoc(doc(db, 'absences', selectedAbsence.id), {
+        reason: editReason,
+        detail: editDetail
+      })
+      alert('수정되었습니다')
+      setIsEditing(false)
+      setSelectedAbsence(null)
+    } catch (error) {
+      console.error('불참 수정 실패:', error)
+      alert('수정에 실패했습니다.')
+    }
+  }
+
+  const startEditing = (absence: Absence) => {
+    setIsEditing(true)
+    setEditReason(absence.reason)
+    setEditDetail(absence.detail || '')
   }
 
   // 필터링된 학생 목록
@@ -319,35 +354,116 @@ export default function CurrentPage({ params }: PageProps) {
               <h2 className="text-xl font-bold text-gray-900">📋 불참 정보</h2>
               <button
                 type="button"
-                onClick={() => setSelectedAbsence(null)}
+                onClick={() => {
+                  setSelectedAbsence(null)
+                  setIsEditing(false)
+                }}
                 className="px-3 py-1 bg-gray-300 hover:bg-gray-400 active:bg-gray-500 text-gray-800 font-bold rounded-lg transition-colors text-sm"
               >
                 닫기
               </button>
             </div>
-            <div className="space-y-3 mb-4">
-              <div className="text-lg">
-                <span className="font-semibold text-gray-700">학생:</span>{' '}
-                <span className="text-blue-700">{selectedAbsence.studentName}</span>
-              </div>
-              <div className="text-lg">
-                <span className="font-semibold text-gray-700">사유:</span>{' '}
-                <span className="text-gray-900">{selectedAbsence.reason}</span>
-              </div>
-              {selectedAbsence.detail && (
-                <div className="text-lg">
-                  <span className="font-semibold text-gray-700">상세:</span>{' '}
-                  <span className="text-gray-900">{selectedAbsence.detail}</span>
+
+            {!isEditing ? (
+              // 보기 모드
+              <>
+                <div className="space-y-3 mb-4">
+                  <div className="text-lg">
+                    <span className="font-semibold text-gray-700">학생:</span>{' '}
+                    <span className="text-blue-700">{selectedAbsence.studentName}</span>
+                  </div>
+                  <div className="text-lg">
+                    <span className="font-semibold text-gray-700">사유:</span>{' '}
+                    <span className="text-gray-900">{selectedAbsence.reason}</span>
+                  </div>
+                  {selectedAbsence.detail && (
+                    <div className="text-lg">
+                      <span className="font-semibold text-gray-700">상세:</span>{' '}
+                      <span className="text-gray-900">{selectedAbsence.detail}</span>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-            <button
-              type="button"
-              onClick={() => handleRemoveAbsence(selectedAbsence)}
-              className="w-full px-4 py-3 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-bold text-lg rounded-lg transition-colors shadow-lg"
-            >
-              ✅ 야자 참가로 변경
-            </button>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => startEditing(selectedAbsence)}
+                    className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-lg rounded-lg transition-colors shadow-lg"
+                  >
+                    ✏️ 수정
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveAbsence(selectedAbsence)}
+                    className="flex-1 px-4 py-3 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-bold text-lg rounded-lg transition-colors shadow-lg"
+                  >
+                    ✅ 참가로 변경
+                  </button>
+                </div>
+              </>
+            ) : (
+              // 수정 모드
+              <>
+                <div className="space-y-4 mb-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      학생: {selectedAbsence.studentName}
+                    </label>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      불참 사유
+                    </label>
+                    <select
+                      value={editReason}
+                      onChange={(e) => {
+                        setEditReason(e.target.value as AbsenceReason)
+                        if (e.target.value !== '동아리' && e.target.value !== '방과후' && e.target.value !== '기타') {
+                          setEditDetail('')
+                        }
+                      }}
+                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">선택하세요</option>
+                      {reasons.map((reason) => (
+                        <option key={reason} value={reason}>
+                          {reason}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  {(editReason === '동아리' || editReason === '방과후' || editReason === '기타') && (
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        상세 사유
+                      </label>
+                      <input
+                        type="text"
+                        value={editDetail}
+                        onChange={(e) => setEditDetail(e.target.value)}
+                        placeholder="상세 내용을 입력하세요"
+                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsEditing(false)}
+                    className="flex-1 px-4 py-2 bg-gray-300 hover:bg-gray-400 active:bg-gray-500 text-gray-800 font-bold rounded-lg transition-colors"
+                  >
+                    취소
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleEditAbsence}
+                    className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold rounded-lg transition-colors shadow-lg"
+                  >
+                    저장
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
