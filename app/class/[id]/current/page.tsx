@@ -350,64 +350,54 @@ export default function CurrentPage({ params }: PageProps) {
       {selectedAbsence && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-2xl max-w-md w-full p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-gray-900">📋 불참 정보</h2>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-lg font-bold text-gray-900">📋 불참 정보</h2>
               <button
                 type="button"
                 onClick={() => {
                   setSelectedAbsence(null)
                   setIsEditing(false)
                 }}
-                className="px-3 py-1 bg-gray-300 hover:bg-gray-400 active:bg-gray-500 text-gray-800 font-bold rounded-lg transition-colors text-sm"
+                className="text-gray-400 hover:text-gray-600 text-2xl"
               >
-                닫기
+                ×
               </button>
             </div>
 
             {!isEditing ? (
               // 보기 모드
               <>
-                <div className="space-y-3 mb-4">
-                  <div className="text-lg">
-                    <span className="font-semibold text-gray-700">학생:</span>{' '}
-                    <span className="text-blue-700">{selectedAbsence.studentName}</span>
+                <div className="space-y-4 mb-6 bg-gray-50 p-4 rounded-lg">
+                  <div className="flex justify-between items-center border-b border-gray-200 pb-2">
+                    <span className="text-sm text-gray-600">학생</span>
+                    <span className="font-semibold text-gray-900">{selectedAbsence.studentName}</span>
                   </div>
-                  <div className="text-lg">
-                    <span className="font-semibold text-gray-700">사유:</span>{' '}
-                    <span className="text-gray-900">{selectedAbsence.reason}</span>
+                  <div className="flex justify-between items-center border-b border-gray-200 pb-2">
+                    <span className="text-sm text-gray-600">사유</span>
+                    <span className="font-semibold text-gray-900">{selectedAbsence.reason}</span>
                   </div>
                   {selectedAbsence.detail && (
-                    <div className="text-lg">
-                      <span className="font-semibold text-gray-700">상세:</span>{' '}
-                      <span className="text-gray-900">{selectedAbsence.detail}</span>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">상세</span>
+                      <span className="font-semibold text-gray-900">{selectedAbsence.detail}</span>
                     </div>
                   )}
                 </div>
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => startEditing(selectedAbsence)}
-                    className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-lg rounded-lg transition-colors shadow-lg"
-                  >
-                    ✏️ 수정
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveAbsence(selectedAbsence)}
-                    className="flex-1 px-4 py-3 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-bold text-lg rounded-lg transition-colors shadow-lg"
-                  >
-                    ✅ 참가로 변경
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => startEditing(selectedAbsence)}
+                  className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold rounded-lg transition-colors shadow-sm"
+                >
+                  수정하기
+                </button>
               </>
             ) : (
               // 수정 모드
               <>
-                <div className="space-y-4 mb-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      학생: {selectedAbsence.studentName}
-                    </label>
+                <div className="space-y-4 mb-6">
+                  <div className="bg-gray-50 p-3 rounded-lg">
+                    <span className="text-sm text-gray-600">학생: </span>
+                    <span className="font-semibold text-gray-900">{selectedAbsence.studentName}</span>
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -421,7 +411,7 @@ export default function CurrentPage({ params }: PageProps) {
                           setEditDetail('')
                         }
                       }}
-                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
                       <option value="">선택하세요</option>
                       {reasons.map((reason) => (
@@ -441,7 +431,7 @@ export default function CurrentPage({ params }: PageProps) {
                         value={editDetail}
                         onChange={(e) => setEditDetail(e.target.value)}
                         placeholder="상세 내용을 입력하세요"
-                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
                   )}
@@ -450,14 +440,14 @@ export default function CurrentPage({ params }: PageProps) {
                   <button
                     type="button"
                     onClick={() => setIsEditing(false)}
-                    className="flex-1 px-4 py-2 bg-gray-300 hover:bg-gray-400 active:bg-gray-500 text-gray-800 font-bold rounded-lg transition-colors"
+                    className="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-lg transition-colors"
                   >
                     취소
                   </button>
                   <button
                     type="button"
                     onClick={handleEditAbsence}
-                    className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold rounded-lg transition-colors shadow-lg"
+                    className="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors shadow-sm"
                   >
                     저장
                   </button>
