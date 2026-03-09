@@ -188,22 +188,22 @@ export default function AddPage({ params }: PageProps) {
             <label className="block text-base sm:text-lg font-semibold text-gray-700 mb-3 sm:mb-4">
               학생 선택
             </label>
-            <div className="grid grid-cols-6 sm:grid-cols-9 gap-2 sm:gap-3 max-h-80 overflow-y-auto p-3 sm:p-4 border-2 border-gray-300 rounded-lg">
+            <div className="grid grid-cols-5 sm:grid-cols-7 gap-2 sm:gap-3 max-h-80 overflow-y-auto p-3 sm:p-4 border-2 border-gray-300 rounded-lg">
               {students.map((student) => (
                 <button
                   key={student.id}
                   type="button"
                   onClick={() => setSelectedStudent(student.id)}
-                  className={`p-4 rounded-lg font-bold transition-colors touch-manipulation min-h-[60px] ${
+                  className={`p-3 rounded-lg font-bold transition-colors touch-manipulation min-h-[60px] ${
                     selectedStudent === student.id
                       ? 'bg-blue-600 text-white shadow-lg'
                       : 'bg-gray-100 text-gray-700 active:bg-gray-200'
                   }`}
                 >
                   {classNumber === 5 ? (
-                    <div className="flex flex-col items-center text-center">
-                      <span className="text-sm">{student.name}</span>
-                      <span className="text-xs opacity-75">({student.id})</span>
+                    <div className="flex flex-col items-center text-center leading-tight">
+                      <span className="text-sm font-bold">{student.name}</span>
+                      <span className="text-xs opacity-75 mt-0.5">({student.id})</span>
                     </div>
                   ) : (
                     student.id
