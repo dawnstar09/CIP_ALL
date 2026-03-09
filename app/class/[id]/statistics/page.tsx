@@ -38,9 +38,11 @@ export default function StatisticsPage({ params }: PageProps) {
       '한상휘', '허원', '황인환'
     ]
     
-    const studentList: Student[] = Array.from({ length: 36 }, (_, i) => ({
+    // 5반은 35명, 다른 반은 36명
+    const studentCount = classNumber === 5 ? 35 : 36
+    const studentList: Student[] = Array.from({ length: studentCount }, (_, i) => ({
       id: i + 1,
-      name: classNumber === 5 && i < 35 ? class5Names[i] : `${i + 1}번 학생`
+      name: classNumber === 5 ? class5Names[i] : `${i + 1}번 학생`
     }))
     setStudents(studentList)
   }, [classNumber])
