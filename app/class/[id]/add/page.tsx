@@ -32,12 +32,21 @@ export default function AddPage({ params }: PageProps) {
   }
 
   useEffect(() => {
+    // 5반 학생 명단
+    const class5Names = [
+      '고원세', '곽도영', '권도현', '김다원', '김도현', '김동윤', '김동하', '김아인',
+      '김영광', '김준혁', '김태훈', '박정후', '박찬', '박찬빈', '방지우', '손동현',
+      '엄도현', '윤영인', '이건희', '이민조', '이시우', '이인수', '이주환', '이준성',
+      '이태성', '장연진', '장희원', '전우재', '정유찬', '조한검', '최준표', '최현서',
+      '한상휘', '허원', '황인환'
+    ]
+    
     const studentList: Student[] = Array.from({ length: 36 }, (_, i) => ({
       id: i + 1,
-      name: `${i + 1}번 학생`
+      name: classNumber === 5 && i < 35 ? class5Names[i] : `${i + 1}번 학생`
     }))
     setStudents(studentList)
-  }, [])
+  }, [classNumber])
 
   const togglePeriod = (period: 1 | 2 | 3) => {
     if (selectedPeriods.includes(period)) {
@@ -189,7 +198,14 @@ export default function AddPage({ params }: PageProps) {
                       : 'bg-gray-100 text-gray-700 active:bg-gray-200'
                   }`}
                 >
-                  {student.id}
+                  {classNumber === 5 ? (
+                    <div className="flex flex-col items-center text-center">
+                      <span className="text-sm">{student.name}</span>
+                      <span className="text-xs opacity-75">({student.id})</span>
+                    </div>
+                  ) : (
+                    student.id
+                  )}
                 </button>
               ))}
             </div>

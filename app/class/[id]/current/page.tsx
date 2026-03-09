@@ -37,12 +37,21 @@ export default function CurrentPage({ params }: PageProps) {
   const [selectedAbsence, setSelectedAbsence] = useState<Absence | null>(null)
 
   useEffect(() => {
+    // 5반 학생 명단
+    const class5Names = [
+      '고원세', '곽도영', '권도현', '김다원', '김도현', '김동윤', '김동하', '김아인',
+      '김영광', '김준혁', '김태훈', '박정후', '박찬', '박찬빈', '방지우', '손동현',
+      '엄도현', '윤영인', '이건희', '이민조', '이시우', '이인수', '이주환', '이준성',
+      '이태성', '장연진', '장희원', '전우재', '정유찬', '조한검', '최준표', '최현서',
+      '한상휘', '허원', '황인환'
+    ]
+    
     const studentList: Student[] = Array.from({ length: 36 }, (_, i) => ({
       id: i + 1,
-      name: `${i + 1}번 학생`
+      name: classNumber === 5 && i < 35 ? class5Names[i] : `${i + 1}번 학생`
     }))
     setStudents(studentList)
-  }, [])
+  }, [classNumber])
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -186,10 +195,19 @@ export default function CurrentPage({ params }: PageProps) {
                   disabled={isPresent}
                 >
                   <div className="flex flex-col items-center justify-center">
-                    <div className="flex items-baseline gap-0.5">
-                      <span className="text-2xl md:text-3xl">{student.id}</span>
-                      <span className="text-xs">번</span>
-                    </div>
+                    {classNumber === 5 ? (
+                      // 5반: 이름(번호) 형식
+                      <div className="flex flex-col items-center">
+                        <span className="text-base md:text-lg font-bold leading-tight">{student.name}</span>
+                        <span className="text-xs opacity-80">({student.id}번)</span>
+                      </div>
+                    ) : (
+                      // 다른 반: 번호만
+                      <div className="flex items-baseline gap-0.5">
+                        <span className="text-2xl md:text-3xl">{student.id}</span>
+                        <span className="text-xs">번</span>
+                      </div>
+                    )}
                     {!isPresent && (
                       <div className="text-[10px] leading-tight opacity-90 px-1 text-center break-all mt-0.5">
                         {displayText}
