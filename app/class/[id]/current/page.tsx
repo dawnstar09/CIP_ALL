@@ -6,8 +6,6 @@ import { useRouter } from 'next/navigation'
 import { db } from '@/lib/firebase'
 import { collection, query, where, onSnapshot, deleteDoc, doc } from 'firebase/firestore'
 import type { Absence, Student, AttendanceStatus } from '@/types'
-import StudentGrid from '@/components/StudentGrid'
-import PeriodSelector from '@/components/PeriodSelector'
 
 interface PageProps {
   params: {
@@ -123,90 +121,157 @@ export default function CurrentPage({ params }: PageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-2 md:p-4">
-      <div className="w-full">
-        {/* 헤더 */}
-        <div className="flex items-center justify-between mb-3 md:mb-4">
-          <div className="flex items-center gap-3">
-            <Link
-              href={`/class/${classNumber}`}
-              className="px-3 py-2 bg-gray-200 hover:bg-gray-300 active:bg-gray-400 rounded-lg transition-colors text-sm touch-manipulation"
-            >
-              ← 뒤로
-            </Link>
-            <h1 className="text-lg md:text-2xl font-bold text-gray-800">
-              2학년 {classNumber}반 야자 현황
-            </h1>
-          </div>
+    <div className="h-screen bg-gray-50 p-3 flex flex-col overflow-hidden">
+      {/* 헤더 */}
+      <div className="flex items-center justify-between mb-3 flex-shrink-0">
+        <div className="flex items-center gap-3">
+          <Link
+            href={`/class/${classNumber}`}
+            className="px-3 py-2 bg-gray-200 hover:bg-gray-300 active:bg-gray-400 rounded-lg transition-colors text-sm touch-manipulation"
+          >
+            ← 뒤로
+          </Link>
+          <h1 className="text-xl md:text-2xl font-bold text-gray-800">
+            2학년 {classNumber}반 야자 현황
+          </h1>
         </div>
-
-        {/* 날짜 및 차시 선택 */}
-        <div className="bg-white p-3 md:p-4 rounded-lg shadow-md mb-3 md:mb-4">
-          <div className="flex flex-col md:flex-row gap-3 md:gap-4 items-center">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 flex-1">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  날짜
-                </label>
-                <input
-                  type="date"
-                  value={currentDate}
-                  onChange={(e) => setCurrentDate(e.target.value)}
-                  className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  차시
-                </label>
-                <PeriodSelector
-                  currentPeriod={currentPeriod}
-                  onPeriodChange={setCurrentPeriod}
-                />
-              </div>
-            </div>
-            <div className="w-full md:w-auto">
-              <button
-                onClick={() => router.push(`/class/${classNumber}/add`)}
-                className="w-full px-4 py-3 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-bold rounded-lg transition-colors shadow-lg touch-manipulation text-base md:text-lg whitespace-nowrap"
-              >
-                ➕ 야자 불참 추가하기
-              </button>
-            </div>
-          </div>
+        <div className="flex items-center gap-3">
+          <input
+            type="date"
+            value={currentDate}
+            onChange={(e) => setCurrentDate(e.target.value)}
+            className="px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+          />
+          <button
+            onClick={() => router.push(`/class/${classNumber}/add`)}
+            className="px-4 py-2 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-bold rounded-lg transition-colors shadow-lg touch-manipulation text-sm whitespace-nowrap"
+          >
+            ➕ 불참 추가
+          </button>
         </div>
+      </div>
 
+      {/* 메인 영역: 학생 그리드 + 차시 선택 */}
+      <div className="flex gap-3 flex-1 overflow-hidden">
         {/* 학생 그리드 */}
-        <StudentGrid
-          students={students}
-          attendanceStatus={attendanceStatus}
-          onAbsenceClick={(absence) => setSelectedAbsence(absence)}
-        />
+        <div className="flex-1 bg-white p-4 rounded-lg shadow-md overflow-hidden flex flex-col">
+          <h2 className="text-lg font-bold mb-3 flex-shrink-0">학생 현황</h2>
+          <div className="flex-1 grid grid-cols-6 gap-2 content-start">
+            {students.map((student) => {
+              const status = attendanceStatus.find((s) => s.studentId === student.id)
+              const isPresent = status?.isPresent ?? true
+              const reason = status?.absence?.reason
+              
+              return (
+                <button
+                  key={student.id}
+                  onClick={() => {
+                    if (!isPresent && status?.absence) {
+                      setSelectedAbsence(status.absence)
+                    }
+                  }}
+                  className={`
+                    aspect-square rounded-lg font-bold text-white
+                    transition-all duration-200 shadow-md hover:shadow-xl active:scale-95
+                    touch-manipulation flex items-center justify-center
+                    ${isPresent 
+                      ? 'bg-green-500 hover:bg-green-600 active:bg-green-700' 
+                      : 'bg-red-500 hover:bg-red-600 active:bg-red-700 cursor-pointer'
+                    }
+                  `}
+                  disabled={isPresent}
+                >
+                  <div className="flex flex-col items-center justify-center gap-1">
+                    <div className="flex items-baseline gap-0.5">
+                      <span className="text-4xl md:text-5xl">{student.id}</span>
+                      <span className="text-sm">번</span>
+                    </div>
+                    {!isPresent && (
+                      <div className="text-[10px] md:text-xs leading-tight opacity-90 px-1 text-center break-all">
+                        {reason || '미입력'}
+                      </div>
+                    )}
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+          <div className="mt-3 flex gap-4 justify-center items-center flex-shrink-0">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 bg-green-500 rounded-lg"></div>
+              <span className="text-sm text-gray-700 font-medium">참가</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 bg-red-500 rounded-lg"></div>
+              <span className="text-sm text-gray-700 font-medium">불참 (디치하여 상세보기)</span>
+            </div>
+          </div>
+        </div>
 
-        {/* 선택된 불참 정보 (화면 하단 고정) */}
-        {selectedAbsence && (
-          <div className="mt-8 bg-blue-50 border-4 border-blue-500 rounded-lg p-5 sm:p-6 md:p-8 shadow-2xl">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl sm:text-3xl font-bold text-blue-900">📋 선택된 불참 정보</h2>
+        {/* 차시 선택 */}
+        <div className="w-48 flex flex-col gap-3">
+          <div className="text-right text-lg font-bold text-gray-800 mb-1">차시</div>
+          <button
+            onClick={() => setCurrentPeriod(1)}
+            className={`flex-1 rounded-lg font-bold text-white text-2xl transition-all shadow-lg hover:shadow-xl active:scale-95 flex flex-col items-center justify-center ${
+              currentPeriod === 1
+                ? 'bg-blue-600 ring-4 ring-blue-300'
+                : 'bg-gray-400 hover:bg-gray-500'
+            }`}
+          >
+            <div className="text-3xl mb-2">1차시</div>
+            <div className="text-sm opacity-90">16:50-17:40</div>
+          </button>
+          <button
+            onClick={() => setCurrentPeriod(2)}
+            className={`flex-1 rounded-lg font-bold text-white text-2xl transition-all shadow-lg hover:shadow-xl active:scale-95 flex flex-col items-center justify-center ${
+              currentPeriod === 2
+                ? 'bg-blue-600 ring-4 ring-blue-300'
+                : 'bg-gray-400 hover:bg-gray-500'
+            }`}
+          >
+            <div className="text-3xl mb-2">2차시</div>
+            <div className="text-sm opacity-90">18:40-20:00</div>
+          </button>
+          <button
+            onClick={() => setCurrentPeriod(3)}
+            className={`flex-1 rounded-lg font-bold text-white text-2xl transition-all shadow-lg hover:shadow-xl active:scale-95 flex flex-col items-center justify-center ${
+              currentPeriod === 3
+                ? 'bg-blue-600 ring-4 ring-blue-300'
+                : 'bg-gray-400 hover:bg-gray-500'
+            }`}
+          >
+            <div className="text-3xl mb-2">3차시</div>
+            <div className="text-sm opacity-90">20:10-21:00</div>
+          </button>
+        </div>
+      </div>
+
+      {/* 선택된 불참 정보 모달 */}
+      {selectedAbsence && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-2xl max-w-md w-full p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-gray-900">📋 불참 정보</h2>
               <button
                 type="button"
                 onClick={() => setSelectedAbsence(null)}
-                className="px-5 py-3 bg-gray-300 hover:bg-gray-400 active:bg-gray-500 text-gray-800 font-bold rounded-lg transition-colors touch-manipulation text-base sm:text-lg"
+                className="px-3 py-1 bg-gray-300 hover:bg-gray-400 active:bg-gray-500 text-gray-800 font-bold rounded-lg transition-colors text-sm"
               >
                 닫기
               </button>
             </div>
-            <div className="space-y-5 mb-8 bg-white p-5 rounded-lg">
-              <div className="text-xl sm:text-2xl">
+            <div className="space-y-3 mb-4">
+              <div className="text-lg">
                 <span className="font-semibold text-gray-700">학생:</span>{' '}
                 <span className="text-blue-700">{selectedAbsence.studentName}</span>
               </div>
-              <div className="text-xl sm:text-2xl">
+              <div className="text-lg">
                 <span className="font-semibold text-gray-700">사유:</span>{' '}
                 <span className="text-gray-900">{selectedAbsence.reason}</span>
               </div>
               {selectedAbsence.detail && (
-                <div className="text-xl sm:text-2xl">
+                <div className="text-lg">
                   <span className="font-semibold text-gray-700">상세:</span>{' '}
                   <span className="text-gray-900">{selectedAbsence.detail}</span>
                 </div>
@@ -215,13 +280,13 @@ export default function CurrentPage({ params }: PageProps) {
             <button
               type="button"
               onClick={() => handleRemoveAbsence(selectedAbsence)}
-              className="w-full px-6 py-6 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-bold rounded-lg transition-colors touch-manipulation text-xl sm:text-2xl shadow-lg"
+              className="w-full px-4 py-3 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-bold text-lg rounded-lg transition-colors shadow-lg"
             >
-              ✅ 다시 참가로 변경
+              ✅ 야자 참가로 변경
             </button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   )
 }
