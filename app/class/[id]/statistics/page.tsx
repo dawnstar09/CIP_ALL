@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { db } from '@/lib/firebase'
-import { collection, query, where, onSnapshot } from 'firebase/firestore'
+import { collection, query, where, onSnapshot, deleteDoc, doc } from 'firebase/firestore'
 import type { Student } from '@/types'
 
 interface PageProps {
@@ -106,6 +106,20 @@ export default function StatisticsPage({ params }: PageProps) {
 
     setFilteredStats(filtered)
   }, [statistics, selectedStudent, selectedPeriod, selectedReason, searchQuery])
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('정말로 이 불참 기록을 삭제하시겠습니까?')) {
+      return
+    }
+    
+    try {
+      await deleteDoc(doc(db, 'absences', id))
+      alert('삭제되었습니다')
+    } catch (error) {
+      console.error('삭제 실패:', error)
+      alert('삭제에 실패했습니다.')
+    }
+  }
 
   const totalAbsences = filteredStats.length
   const period1Count = filteredStats.filter(item => item.period === 1).length
@@ -247,48 +261,48 @@ export default function StatisticsPage({ params }: PageProps) {
           </div>
         </div>
 
-        {/* 상세 기록 - 모바일 카드 뷰 */}
-        <div className="bg-white p-5 sm:p-6 md:p-8 rounded-lg shadow-md">
+        {/* 상세 기록 - 테이블 */}
+        <div className="bg-white p-5 sm:p-6 md:p-8 rounded-lg shadow-md overflow-x-auto">
           <h3 className="text-xl sm:text-2xl font-bold mb-5 sm:mb-6">상세 기록</h3>
           
           {filteredStats.length > 0 ? (
-            <div className="space-y-4">
-              {filteredStats.map((absence, idx) => (
-                <div
-                  key={idx}
-                  onClick={() => setSelectedRecord(absence)}
-                  className="bg-gray-50 p-5 rounded-lg border-2 border-gray-200 active:bg-gray-100 touch-manipulation hover:shadow-md transition-shadow"
-                >
-                  <div className="flex justify-between items-start mb-3">
-                    <div>
-                      <div className="text-sm text-gray-600 mb-1">{absence.date}</div>
-                      <div className="text-xl font-bold text-gray-800">{absence.studentName}</div>
-                    </div>
-                    <span className="px-3 py-2 bg-blue-600 text-white text-sm rounded-lg font-bold">
-                      {absence.studentId}번
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="text-sm bg-blue-100 text-blue-800 px-3 py-2 rounded font-semibold">
-                      {absence.period}차시
-                    </span>
-                    <span className="text-sm bg-gray-200 text-gray-700 px-3 py-2 rounded font-semibold">
-                      {absence.reason}
-                    </span>
-                  </div>
-                  {absence.detail && (
-                    <div className="text-base text-gray-700 mt-2">
-                      {absence.detail}
-                    </div>
-                  )}
-                  {absence.deviceInfo && (
-                    <div className="text-sm text-gray-500 mt-3 pt-3 border-t border-gray-200">
-                      💻 {absence.deviceInfo.browser} / {absence.deviceInfo.os}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="border-b-2 border-gray-300">
+                  <th className="px-4 py-3 text-left text-sm sm:text-base font-semibold text-gray-700">날짜</th>
+                  <th className="px-4 py-3 text-left text-sm sm:text-base font-semibold text-gray-700">차시</th>
+                  <th className="px-4 py-3 text-left text-sm sm:text-base font-semibold text-gray-700">이름</th>
+                  <th className="px-4 py-3 text-left text-sm sm:text-base font-semibold text-gray-700">번호</th>
+                  <th className="px-4 py-3 text-left text-sm sm:text-base font-semibold text-gray-700">사유</th>
+                  <th className="px-4 py-3 text-left text-sm sm:text-base font-semibold text-gray-700">액션</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredStats.map((absence, idx) => (
+                  <tr key={idx} className="border-b border-gray-200 hover:bg-gray-50">
+                    <td className="px-4 py-3 text-sm sm:text-base">{absence.date}</td>
+                    <td className="px-4 py-3 text-sm sm:text-base">야자 {absence.period}차시</td>
+                    <td className="px-4 py-3 text-sm sm:text-base">{absence.studentName}</td>
+                    <td className="px-4 py-3 text-sm sm:text-base">{absence.studentId}</td>
+                    <td className="px-4 py-3 text-sm sm:text-base">
+                      {absence.detail ? (
+                        <span>{absence.reason}: {absence.detail}</span>
+                      ) : (
+                        absence.reason
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      <button
+                        onClick={() => handleDelete(absence.id)}
+                        className="text-red-500 hover:text-red-700 font-semibold text-sm sm:text-base"
+                      >
+                        삭제
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           ) : (
             <p className="text-gray-500 text-center py-12 text-lg">
               {loading ? '로딩 중...' : '검색 결과가 없습니다'}
