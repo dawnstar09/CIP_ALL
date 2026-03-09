@@ -152,11 +152,11 @@ export default function CurrentPage({ params }: PageProps) {
       </div>
 
       {/* 메인 영역: 학생 그리드 + 차시 선택 */}
-      <div className="flex gap-2 flex-1 overflow-hidden">
+      <div className="flex gap-2 flex-1 overflow-hidden min-h-0">
         {/* 학생 그리드 */}
-        <div className="flex-1 bg-white p-3 rounded-lg shadow-md overflow-hidden flex flex-col">
-          <h2 className="text-base font-bold mb-2 flex-shrink-0">학생 현황</h2>
-          <div className="flex-1 grid grid-cols-7 gap-1.5 content-start">
+        <div className="flex-1 bg-white p-2 rounded-lg shadow-md overflow-hidden flex flex-col min-h-0">
+          <h2 className="text-sm font-bold mb-1.5 flex-shrink-0">학생 현황</h2>
+          <div className="flex-1 grid grid-cols-7 auto-rows-fr gap-1 min-h-0">
             {students.map((student) => {
               const status = attendanceStatus.find((s) => s.studentId === student.id)
               const isPresent = status?.isPresent ?? true
@@ -175,9 +175,9 @@ export default function CurrentPage({ params }: PageProps) {
                     }
                   }}
                   className={`
-                    aspect-square rounded-lg font-bold text-white
+                    rounded-lg font-bold text-white min-h-0
                     transition-all duration-200 shadow-md hover:shadow-xl active:scale-95
-                    touch-manipulation flex items-center justify-center
+                    touch-manipulation flex items-center justify-center p-1
                     ${isPresent 
                       ? 'bg-green-500 hover:bg-green-600 active:bg-green-700' 
                       : 'bg-red-500 hover:bg-red-600 active:bg-red-700 cursor-pointer'
@@ -187,11 +187,11 @@ export default function CurrentPage({ params }: PageProps) {
                 >
                   <div className="flex flex-col items-center justify-center">
                     <div className="flex items-baseline gap-0.5">
-                      <span className="text-3xl">{student.id}</span>
+                      <span className="text-2xl md:text-3xl">{student.id}</span>
                       <span className="text-xs">번</span>
                     </div>
                     {!isPresent && (
-                      <div className="text-[9px] leading-tight opacity-90 px-1 text-center break-all mt-0.5">
+                      <div className="text-[10px] leading-tight opacity-90 px-1 text-center break-all mt-0.5">
                         {displayText}
                       </div>
                     )}
@@ -200,21 +200,21 @@ export default function CurrentPage({ params }: PageProps) {
               )
             })}
           </div>
-          <div className="mt-2 flex gap-3 justify-center items-center flex-shrink-0">
+          <div className="mt-1.5 flex gap-3 justify-center items-center flex-shrink-0">
             <div className="flex items-center gap-1.5">
-              <div className="w-5 h-5 bg-green-500 rounded"></div>
+              <div className="w-4 h-4 bg-green-500 rounded"></div>
               <span className="text-xs text-gray-700 font-medium">참가</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <div className="w-5 h-5 bg-red-500 rounded"></div>
-              <span className="text-xs text-gray-700 font-medium">불참 (터치하여 상세보기)</span>
+              <div className="w-4 h-4 bg-red-500 rounded"></div>
+              <span className="text-xs text-gray-700 font-medium">불참</span>
             </div>
           </div>
         </div>
 
         {/* 차시 선택 */}
-        <div className="w-36 flex flex-col gap-2">
-          <div className="text-right text-base font-bold text-gray-800">차시</div>
+        <div className="w-32 flex flex-col gap-2">
+          <div className="text-right text-sm font-bold text-gray-800">차시</div>
           <button
             onClick={() => setCurrentPeriod(1)}
             className={`flex-1 rounded-lg font-bold text-white transition-all shadow-lg hover:shadow-xl active:scale-95 flex flex-col items-center justify-center ${
@@ -223,7 +223,7 @@ export default function CurrentPage({ params }: PageProps) {
                 : 'bg-gray-400 hover:bg-gray-500'
             }`}
           >
-            <div className="text-2xl mb-1">1차시</div>
+            <div className="text-xl mb-1">1차시</div>
             <div className="text-xs opacity-90">16:50-17:40</div>
           </button>
           <button
@@ -234,7 +234,7 @@ export default function CurrentPage({ params }: PageProps) {
                 : 'bg-gray-400 hover:bg-gray-500'
             }`}
           >
-            <div className="text-2xl mb-1">2차시</div>
+            <div className="text-xl mb-1">2차시</div>
             <div className="text-xs opacity-90">18:40-20:00</div>
           </button>
           <button
@@ -245,7 +245,7 @@ export default function CurrentPage({ params }: PageProps) {
                 : 'bg-gray-400 hover:bg-gray-500'
             }`}
           >
-            <div className="text-2xl mb-1">3차시</div>
+            <div className="text-xl mb-1">3차시</div>
             <div className="text-xs opacity-90">20:10-21:00</div>
           </button>
         </div>
