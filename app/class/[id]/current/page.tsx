@@ -43,8 +43,8 @@ export default function CurrentPage({ params }: PageProps) {
     const class5Names = [
       '고원세', '곽도영', '권도현', '김다원', '김도현', '김동윤', '김동하', '김아인',
       '김영광', '김준혁', '김태훈', '박정후', '박찬', '박찬빈', '방지우', '손동현',
-      '엄도현', '윤영인', '이건희', '이민조', '이시우', '이인수', '이주환', '이준성',
-      '이태성', '장연진', '장희원', '전우재', '정유찬', '조한검', '최준표', '최현서',
+      '엄도현', '윤영인', '이건희', '이민주', '이시우', '이인수', '이주환', '이준성',
+      '이태성', '장연진', '장희원', '전우재', '정유찬', '조한겸', '최준표', '최현서',
       '한상휘', '허원', '황인환'
     ]
     
@@ -202,11 +202,14 @@ export default function CurrentPage({ params }: PageProps) {
         <div className="flex-1 bg-white p-2 rounded-lg shadow-md overflow-hidden flex flex-col min-h-0">
           <h2 className="text-sm font-bold mb-1.5 flex-shrink-0">학생 현황 ({filteredStudents.length}명)</h2>
           <div className="flex-1 grid grid-cols-7 auto-rows-fr gap-1 min-h-0">
-            {filteredStudents.map((student) => {
+            {students.map((student) => {
               const status = attendanceStatus.find((s) => s.studentId === student.id)
               const isPresent = status?.isPresent ?? true
               const reason = status?.absence?.reason
               const detail = status?.absence?.detail
+              
+              // 필터링 확인
+              const shouldShow = filteredStudents.some(s => s.id === student.id)
               
               // "기타"인 경우 상세 내용 표시, 그 외에는 사유 표시
               const displayText = reason === '기타' && detail ? detail : (reason || '미입력')
@@ -219,6 +222,7 @@ export default function CurrentPage({ params }: PageProps) {
                       setSelectedAbsence(status.absence)
                     }
                   }}
+                  style={{ visibility: shouldShow ? 'visible' : 'hidden' }}
                   className={`
                     rounded-lg font-bold text-white min-h-0
                     transition-all duration-200 shadow-md hover:shadow-xl active:scale-95
