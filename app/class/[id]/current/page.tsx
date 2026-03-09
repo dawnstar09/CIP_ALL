@@ -55,12 +55,7 @@ export default function CurrentPage({ params }: PageProps) {
     setStudents(studentList)
   }, [classNumber])
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentPeriod(getCurrentPeriod())
-    }, 60000)
-    return () => clearInterval(interval)
-  }, [])
+  // 차시 자동 업데이트 제거 - 초기 로드 시에만 현재 시간대 차시로 설정됨
 
   useEffect(() => {
     if (students.length === 0) return
