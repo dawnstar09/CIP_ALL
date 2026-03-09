@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { db } from '@/lib/firebase'
-import { collection, query, where, onSnapshot } from 'firebase/firestore'
+import { collection, query, where, onSnapshot, deleteDoc, doc } from 'firebase/firestore'
 import type { Student } from '@/types'
 
 interface PageProps {
@@ -27,6 +27,7 @@ export default function StatisticsPage({ params }: PageProps) {
   const [selectedPeriod, setSelectedPeriod] = useState<number | null>(null)
   const [selectedReason, setSelectedReason] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
+  const [deletingId, setDeletingId] = useState<string | null>(null)
 
   useEffect(() => {
     // 5반 학생 명단
@@ -123,6 +124,23 @@ export default function StatisticsPage({ params }: PageProps) {
     acc[item.reason] = (acc[item.reason] || 0) + 1
     return acc
   }, {})
+
+  const handleRejoin = async (absenceId: string, studentName: string) => {
+    if (!confirm(`${studentName} 학생을 야자에 다시 참가시키시겠습니까?\n(불참 기록이 삭제됩니다)`)) {
+      return
+    }
+
+    try {
+      setDeletingId(absenceId)
+      await deleteDoc(doc(db, 'absences', absenceId))
+      alert('재참가 처리되었습니다!')
+    } catch (error) {
+      console.error('재참가 처리 실패:', error)
+      alert('재참가 처리에 실패했습니다.')
+    } finally {
+      setDeletingId(null)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-3 sm:p-4 md:p-8">
@@ -267,6 +285,7 @@ export default function StatisticsPage({ params }: PageProps) {
                   <th className="px-4 py-3 text-left text-sm sm:text-base font-semibold text-gray-700">번호</th>
                   <th className="px-4 py-3 text-left text-sm sm:text-base font-semibold text-gray-700">이름</th>
                   <th className="px-4 py-3 text-left text-sm sm:text-base font-semibold text-gray-700">사유</th>
+                  <th className="px-4 py-3 text-left text-sm sm:text-base font-semibold text-gray-700">재참가</th>
                 </tr>
               </thead>
               <tbody>
@@ -282,6 +301,15 @@ export default function StatisticsPage({ params }: PageProps) {
                       ) : (
                         absence.reason
                       )}
+                    </td>
+                    <td className="px-4 py-3 text-sm sm:text-base">
+                      <button
+                        onClick={() => handleRejoin(absence.id, absence.studentName)}
+                        disabled={deletingId === absence.id}
+                        className="px-3 py-1.5 bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white rounded-lg transition-colors text-sm font-medium touch-manipulation"
+                      >
+                        {deletingId === absence.id ? '처리중...' : '재참가'}
+                      </button>
                     </td>
                   </tr>
                 ))}
