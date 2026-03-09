@@ -383,13 +383,22 @@ export default function CurrentPage({ params }: PageProps) {
                     </div>
                   )}
                 </div>
-                <button
-                  type="button"
-                  onClick={() => startEditing(selectedAbsence)}
-                  className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold rounded-lg transition-colors shadow-sm"
-                >
-                  수정하기
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => startEditing(selectedAbsence)}
+                    className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold rounded-lg transition-colors shadow-sm"
+                  >
+                    수정하기
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveAbsence(selectedAbsence)}
+                    className="flex-1 px-4 py-3 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-semibold rounded-lg transition-colors shadow-sm"
+                  >
+                    재참가
+                  </button>
+                </div>
               </>
             ) : (
               // 수정 모드
