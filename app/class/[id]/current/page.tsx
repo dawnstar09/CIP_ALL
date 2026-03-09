@@ -35,6 +35,8 @@ export default function CurrentPage({ params }: PageProps) {
   const [students, setStudents] = useState<Student[]>([])
   const [attendanceStatus, setAttendanceStatus] = useState<AttendanceStatus[]>([])
   const [selectedAbsence, setSelectedAbsence] = useState<Absence | null>(null)
+  const [filterType, setFilterType] = useState<'all' | 'present' | 'absent' | 'reason'>('all')
+  const [selectedReasonFilter, setSelectedReasonFilter] = useState<string | null>(null)
 
   useEffect(() => {
     // 5반 학생 명단
@@ -129,6 +131,21 @@ export default function CurrentPage({ params }: PageProps) {
     }
   }
 
+  // 필터링된 학생 목록
+  const filteredStudents = students.filter((student) => {
+    const status = attendanceStatus.find((s) => s.studentId === student.id)
+    const isPresent = status?.isPresent ?? true
+    const reason = status?.absence?.reason
+
+    if (filterType === 'all') return true
+    if (filterType === 'present') return isPresent
+    if (filterType === 'absent') return !isPresent
+    if (filterType === 'reason' && selectedReasonFilter) {
+      return !isPresent && reason === selectedReasonFilter
+    }
+    return true
+  })
+
   return (
     <div className="h-screen bg-gray-50 p-2 flex flex-col overflow-hidden">
       {/* 헤더 */}
@@ -143,6 +160,30 @@ export default function CurrentPage({ params }: PageProps) {
           <h1 className="text-xl font-bold text-gray-800">
             2학년 {classNumber}반 야자 현황
           </h1>
+          {/* 필터 드롭다운 */}
+          <select
+            value={filterType === 'reason' ? `reason:${selectedReasonFilter}` : filterType}
+            onChange={(e) => {
+              const value = e.target.value
+              if (value.startsWith('reason:')) {
+                setFilterType('reason')
+                setSelectedReasonFilter(value.replace('reason:', ''))
+              } else {
+                setFilterType(value as 'all' | 'present' | 'absent')
+                setSelectedReasonFilter(null)
+              }
+            }}
+            className="px-3 py-1.5 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white"
+          >
+            <option value="all">전체</option>
+            <option value="present">출석자만</option>
+            <option value="absent">불참자만</option>
+            <option value="reason:병원">병원만</option>
+            <option value="reason:학원">학원만</option>
+            <option value="reason:동아리">동아리만</option>
+            <option value="reason:방과후">방과후만</option>
+            <option value="reason:기타">기타만</option>
+          </select>
         </div>
         <div className="flex items-center gap-2">
           <input
@@ -164,9 +205,9 @@ export default function CurrentPage({ params }: PageProps) {
       <div className="flex gap-2 flex-1 overflow-hidden min-h-0">
         {/* 학생 그리드 */}
         <div className="flex-1 bg-white p-2 rounded-lg shadow-md overflow-hidden flex flex-col min-h-0">
-          <h2 className="text-sm font-bold mb-1.5 flex-shrink-0">학생 현황</h2>
+          <h2 className="text-sm font-bold mb-1.5 flex-shrink-0">학생 현황 ({filteredStudents.length}명)</h2>
           <div className="flex-1 grid grid-cols-7 auto-rows-fr gap-1 min-h-0">
-            {students.map((student) => {
+            {filteredStudents.map((student) => {
               const status = attendanceStatus.find((s) => s.studentId === student.id)
               const isPresent = status?.isPresent ?? true
               const reason = status?.absence?.reason
