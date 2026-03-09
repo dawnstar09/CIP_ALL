@@ -121,30 +121,30 @@ export default function CurrentPage({ params }: PageProps) {
   }
 
   return (
-    <div className="h-screen bg-gray-50 p-3 flex flex-col overflow-hidden">
+    <div className="h-screen bg-gray-50 p-2 flex flex-col overflow-hidden">
       {/* 헤더 */}
-      <div className="flex items-center justify-between mb-3 flex-shrink-0">
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between mb-2 flex-shrink-0">
+        <div className="flex items-center gap-2">
           <Link
             href={`/class/${classNumber}`}
-            className="px-3 py-2 bg-gray-200 hover:bg-gray-300 active:bg-gray-400 rounded-lg transition-colors text-sm touch-manipulation"
+            className="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 active:bg-gray-400 rounded-lg transition-colors text-sm touch-manipulation"
           >
             ← 뒤로
           </Link>
-          <h1 className="text-xl md:text-2xl font-bold text-gray-800">
+          <h1 className="text-xl font-bold text-gray-800">
             2학년 {classNumber}반 야자 현황
           </h1>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <input
             type="date"
             value={currentDate}
             onChange={(e) => setCurrentDate(e.target.value)}
-            className="px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            className="px-3 py-1.5 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
           />
           <button
             onClick={() => router.push(`/class/${classNumber}/add`)}
-            className="px-4 py-2 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-bold rounded-lg transition-colors shadow-lg touch-manipulation text-sm whitespace-nowrap"
+            className="px-4 py-1.5 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-bold rounded-lg transition-colors shadow-lg touch-manipulation text-sm whitespace-nowrap"
           >
             ➕ 불참 추가
           </button>
@@ -152,11 +152,11 @@ export default function CurrentPage({ params }: PageProps) {
       </div>
 
       {/* 메인 영역: 학생 그리드 + 차시 선택 */}
-      <div className="flex gap-3 flex-1 overflow-hidden">
+      <div className="flex gap-2 flex-1 overflow-hidden">
         {/* 학생 그리드 */}
-        <div className="flex-1 bg-white p-4 rounded-lg shadow-md overflow-hidden flex flex-col">
-          <h2 className="text-lg font-bold mb-3 flex-shrink-0">학생 현황</h2>
-          <div className="flex-1 grid grid-cols-6 gap-2 content-start">
+        <div className="flex-1 bg-white p-3 rounded-lg shadow-md overflow-hidden flex flex-col">
+          <h2 className="text-base font-bold mb-2 flex-shrink-0">학생 현황</h2>
+          <div className="flex-1 grid grid-cols-7 gap-1.5 content-start">
             {students.map((student) => {
               const status = attendanceStatus.find((s) => s.studentId === student.id)
               const isPresent = status?.isPresent ?? true
@@ -181,13 +181,13 @@ export default function CurrentPage({ params }: PageProps) {
                   `}
                   disabled={isPresent}
                 >
-                  <div className="flex flex-col items-center justify-center gap-1">
+                  <div className="flex flex-col items-center justify-center">
                     <div className="flex items-baseline gap-0.5">
-                      <span className="text-4xl md:text-5xl">{student.id}</span>
-                      <span className="text-sm">번</span>
+                      <span className="text-3xl">{student.id}</span>
+                      <span className="text-xs">번</span>
                     </div>
                     {!isPresent && (
-                      <div className="text-[10px] md:text-xs leading-tight opacity-90 px-1 text-center break-all">
+                      <div className="text-[9px] leading-tight opacity-90 px-1 text-center break-all mt-0.5">
                         {reason || '미입력'}
                       </div>
                     )}
@@ -196,53 +196,53 @@ export default function CurrentPage({ params }: PageProps) {
               )
             })}
           </div>
-          <div className="mt-3 flex gap-4 justify-center items-center flex-shrink-0">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 bg-green-500 rounded-lg"></div>
-              <span className="text-sm text-gray-700 font-medium">참가</span>
+          <div className="mt-2 flex gap-3 justify-center items-center flex-shrink-0">
+            <div className="flex items-center gap-1.5">
+              <div className="w-5 h-5 bg-green-500 rounded"></div>
+              <span className="text-xs text-gray-700 font-medium">참가</span>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 bg-red-500 rounded-lg"></div>
-              <span className="text-sm text-gray-700 font-medium">불참 (디치하여 상세보기)</span>
+            <div className="flex items-center gap-1.5">
+              <div className="w-5 h-5 bg-red-500 rounded"></div>
+              <span className="text-xs text-gray-700 font-medium">불참 (터치하여 상세보기)</span>
             </div>
           </div>
         </div>
 
         {/* 차시 선택 */}
-        <div className="w-48 flex flex-col gap-3">
-          <div className="text-right text-lg font-bold text-gray-800 mb-1">차시</div>
+        <div className="w-36 flex flex-col gap-2">
+          <div className="text-right text-base font-bold text-gray-800">차시</div>
           <button
             onClick={() => setCurrentPeriod(1)}
-            className={`flex-1 rounded-lg font-bold text-white text-2xl transition-all shadow-lg hover:shadow-xl active:scale-95 flex flex-col items-center justify-center ${
+            className={`flex-1 rounded-lg font-bold text-white transition-all shadow-lg hover:shadow-xl active:scale-95 flex flex-col items-center justify-center ${
               currentPeriod === 1
                 ? 'bg-blue-600 ring-4 ring-blue-300'
                 : 'bg-gray-400 hover:bg-gray-500'
             }`}
           >
-            <div className="text-3xl mb-2">1차시</div>
-            <div className="text-sm opacity-90">16:50-17:40</div>
+            <div className="text-2xl mb-1">1차시</div>
+            <div className="text-xs opacity-90">16:50-17:40</div>
           </button>
           <button
             onClick={() => setCurrentPeriod(2)}
-            className={`flex-1 rounded-lg font-bold text-white text-2xl transition-all shadow-lg hover:shadow-xl active:scale-95 flex flex-col items-center justify-center ${
+            className={`flex-1 rounded-lg font-bold text-white transition-all shadow-lg hover:shadow-xl active:scale-95 flex flex-col items-center justify-center ${
               currentPeriod === 2
-                ? 'bg-blue-600 ring-4 ring-blue-300'
+                ? 'bg-blue-600 ring-4 ring-4 ring-blue-300'
                 : 'bg-gray-400 hover:bg-gray-500'
             }`}
           >
-            <div className="text-3xl mb-2">2차시</div>
-            <div className="text-sm opacity-90">18:40-20:00</div>
+            <div className="text-2xl mb-1">2차시</div>
+            <div className="text-xs opacity-90">18:40-20:00</div>
           </button>
           <button
             onClick={() => setCurrentPeriod(3)}
-            className={`flex-1 rounded-lg font-bold text-white text-2xl transition-all shadow-lg hover:shadow-xl active:scale-95 flex flex-col items-center justify-center ${
+            className={`flex-1 rounded-lg font-bold text-white transition-all shadow-lg hover:shadow-xl active:scale-95 flex flex-col items-center justify-center ${
               currentPeriod === 3
                 ? 'bg-blue-600 ring-4 ring-blue-300'
                 : 'bg-gray-400 hover:bg-gray-500'
             }`}
           >
-            <div className="text-3xl mb-2">3차시</div>
-            <div className="text-sm opacity-90">20:10-21:00</div>
+            <div className="text-2xl mb-1">3차시</div>
+            <div className="text-xs opacity-90">20:10-21:00</div>
           </button>
         </div>
       </div>
