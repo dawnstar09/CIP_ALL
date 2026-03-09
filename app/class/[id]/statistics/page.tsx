@@ -69,7 +69,14 @@ export default function StatisticsPage({ params }: PageProps) {
           absences.push({ id: document.id, ...data })
         })
 
-        absences.sort((a, b) => b.date.localeCompare(a.date))
+        absences.sort((a, b) => {
+          // 날짜 비교 우선 (최신순)
+          const dateCompare = b.date.localeCompare(a.date)
+          if (dateCompare !== 0) return dateCompare
+          
+          // 같은 날짜면 이름순 (오름차순)
+          return a.studentName.localeCompare(b.studentName)
+        })
         
         setStatistics(absences)
         setFilteredStats(absences)
