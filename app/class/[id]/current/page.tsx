@@ -161,6 +161,10 @@ export default function CurrentPage({ params }: PageProps) {
               const status = attendanceStatus.find((s) => s.studentId === student.id)
               const isPresent = status?.isPresent ?? true
               const reason = status?.absence?.reason
+              const detail = status?.absence?.detail
+              
+              // "기타"인 경우 상세 내용 표시, 그 외에는 사유 표시
+              const displayText = reason === '기타' && detail ? detail : (reason || '미입력')
               
               return (
                 <button
@@ -188,7 +192,7 @@ export default function CurrentPage({ params }: PageProps) {
                     </div>
                     {!isPresent && (
                       <div className="text-[9px] leading-tight opacity-90 px-1 text-center break-all mt-0.5">
-                        {reason || '미입력'}
+                        {displayText}
                       </div>
                     )}
                   </div>
