@@ -10,3 +10,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .vercel
+
+# 일회용 스크립트 (학생 정보 포함)
+scripts/

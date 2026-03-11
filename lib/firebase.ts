@@ -3,6 +3,7 @@
 
 import { initializeApp, getApps } from 'firebase/app'
 import { getFirestore } from 'firebase/firestore'
+import { getAuth, GoogleAuthProvider } from 'firebase/auth'
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -21,5 +22,12 @@ if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
 // Initialize Firebase
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0]
 const db = getFirestore(app)
+const auth = getAuth(app)
+const googleProvider = new GoogleAuthProvider()
 
-export { app, db }
+// Google 로그인 설정: 학교 도메인만 허용
+googleProvider.setCustomParameters({
+  hd: 'dshs.kr' // 대성고등학교 도메인
+})
+
+export { app, db, auth, googleProvider }

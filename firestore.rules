@@ -1,0 +1,99 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ========================================
+    // 헬퍼 함수들
+    // ========================================
+    
+    // 인증된 사용자인지 확인
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    // 사용자 정보 가져오기
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    
+    // 관리자 또는 교사인지 확인
+    function isAdminOrTeacher() {
+      return isSignedIn() && getUserData().role in ['admin', 'teacher'];
+    }
+    
+    // 특정 반의 학생인지 확인
+    function isStudentOfClass(classId) {
+      return isSignedIn() && getUserData().classId == classId;
+    }
+    
+    // 본인의 이메일인지 확인
+    function isOwnEmail(email) {
+      return isSignedIn() && request.auth.token.email == email;
+    }
+    
+    // ========================================
+    // 사용자 정보 (users 컬렉션)
+    // ========================================
+    match /users/{userId} {
+      // 읽기: 본인 또는 관리자/교사만 가능
+      allow read: if isSignedIn() && (
+        request.auth.uid == userId || isAdminOrTeacher()
+      );
+      
+      // 쓰기: 관리자만 가능 (최초 생성 제외)
+      allow create: if isSignedIn() && request.auth.uid == userId;
+      allow update, delete: if isAdminOrTeacher();
+    }
+    
+    // ========================================
+    // 반 정보 (classes 컬렉션)
+    // ========================================
+    match /classes/{classId} {
+      // 읽기: 모든 인증된 사용자
+      allow read: if isSignedIn();
+      
+      // 쓰기: 관리자/교사만 가능
+      allow write: if isAdminOrTeacher();
+      
+      // 반별 학생 명렬표 (서브컬렉션)
+      match /students/{studentEmail} {
+        // 읽기: 해당 반 학생 또는 관리자/교사
+        allow read: if isSignedIn() && (
+          isStudentOfClass(classId) || isAdminOrTeacher()
+        );
+        
+        // 쓰기: 관리자/교사만 가능
+        allow write: if isAdminOrTeacher();
+      }
+    }
+    
+    // ========================================
+    // 야자 불참 기록 (absences 컬렉션)
+    // ========================================
+    match /absences/{absenceId} {
+      // 읽기: 같은 반 학생 또는 관리자/교사
+      allow read: if isSignedIn() && (
+        isStudentOfClass(resource.data.classId) || isAdminOrTeacher()
+      );
+      
+      // 생성: 본인 이메일로만 가능
+      allow create: if isSignedIn() && 
+        isOwnEmail(request.resource.data.studentEmail) &&
+        request.resource.data.userId == request.auth.uid &&
+        isStudentOfClass(request.resource.data.classId);
+      
+      // 수정/삭제: 본인 또는 관리자/교사만 가능
+      allow update, delete: if isSignedIn() && (
+        resource.data.userId == request.auth.uid || isAdminOrTeacher()
+      );
+    }
+    
+    // ========================================
+    // 기타 모든 문서: 기본적으로 거부
+    // ========================================
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
