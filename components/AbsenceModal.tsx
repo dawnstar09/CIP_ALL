@@ -1,12 +1,22 @@
 'use client'
 
 import { useState } from 'react'
-import type { Student, Absence, AbsenceReason } from '@/types'
+import type { Student, AbsenceReason } from '@/types'
+
+// 모달에서 수집하는 기본 불참 정보
+export interface BasicAbsenceInfo {
+  studentId: number
+  studentName: string
+  reason: AbsenceReason
+  detail: string
+  date: string
+  period: 1 | 2 | 3
+}
 
 interface AbsenceModalProps {
   students: Student[]
   onClose: () => void
-  onSubmit: (absences: Omit<Absence, 'createdAt'>[]) => void
+  onSubmit: (absences: BasicAbsenceInfo[]) => void
 }
 
 export default function AbsenceModal({ students, onClose, onSubmit }: AbsenceModalProps) {
