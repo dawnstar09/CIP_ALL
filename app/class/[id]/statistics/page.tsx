@@ -67,7 +67,16 @@ export default function StatisticsPage({ params }: PageProps) {
       '조성재', '조현빈', '황성연'
     ]
     
-    // 5반은 35명, 6반은 34명, 7반은 35명, 나머지는 36명
+    // 8반 학생 명단
+    const class8Names = [
+      '강유진', '고동민', '권민준', '권영민', '기호준', '길승재', '김민범', '김범서',
+      '김상준', '김신', '김예준', '김지후', '나기현', '민승기', '15번 학생', '신민호',
+      '염민준', '윤준원', '이건희', '이권우', '이승훈', '이준현', '임지원', '전재원',
+      '전희재', '정우성', '조윤찬', '지민건', '진찬종', '최동현', '최온유', '최윤우',
+      '최진명', '허선호', '황동규'
+    ]
+    
+    // 3반 36명, 5반 35명, 6반 34명, 7반 35명, 8반 35명, 나머지 36명
     let studentCount = 36
     let nameList: string[] = []
     
@@ -83,6 +92,9 @@ export default function StatisticsPage({ params }: PageProps) {
     } else if (classNumber === 7) {
       studentCount = 35
       nameList = class7Names
+    } else if (classNumber === 8) {
+      studentCount = 35
+      nameList = class8Names
     }
     
     const studentList: Student[] = Array.from({ length: studentCount }, (_, i) => ({
