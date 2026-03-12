@@ -1,7 +1,6 @@
 ﻿'use client'
 
 import Link from 'next/link'
-import ClassGuard from '@/components/ClassGuard'
 
 interface PageProps {
   params: {
@@ -11,7 +10,6 @@ interface PageProps {
 
 export default function ClassPage({ params }: PageProps) {
   const classNumber = parseInt(params.id)
-  const classId = `2-${classNumber}` // 2학년 X반 형식
 
   const menus = [
     {
@@ -38,7 +36,6 @@ export default function ClassPage({ params }: PageProps) {
   ]
 
   return (
-    <ClassGuard classId={classId}>
       <main className="min-h-screen bg-gray-50 p-4 sm:p-6 md:p-8">
         <div className="max-w-4xl mx-auto">
           <div className="mb-8 sm:mb-12">
@@ -87,6 +84,5 @@ export default function ClassPage({ params }: PageProps) {
           </div>
         </div>
       </main>
-    </ClassGuard>
   )
 }

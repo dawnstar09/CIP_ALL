@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation'
 import { db } from '@/lib/firebase'
 import { collection, query, where, onSnapshot, deleteDoc, doc, updateDoc, getDocs, addDoc } from 'firebase/firestore'
 import type { Absence, Student, AttendanceStatus, AbsenceReason } from '@/types'
-import ClassGuard from '@/components/ClassGuard'
 
 interface PageProps {
   params: {
@@ -54,6 +53,15 @@ export default function CurrentPage({ params }: PageProps) {
       '정현우', '조성윤', '조승찬', '최승호'
     ]
     
+    // 4반 학생 명단 (35명)
+    const class4Names = [
+      '김기덕', '김대겸', '김도현', '김민준', '김성윤', '김시온', '김연우', '김재민',
+      '김재윤', '김종규', '김태환', '노승민', '박경돈', '박준형', '박태정', '송영준',
+      '신효섭', '심동원', '안호재', '오승민', '오시훈', '유재민', '이규성', '이승헌',
+      '이주안', '정승원', '조유신', '지선우', '천태양', '최성현', '추유찬', '황규탁',
+      '황서준', '황찬영', '황태민'
+    ]
+    
     // 5반 학생 명단
     const class5Names = [
       '고원세', '곽도영', '권도현', '김다원', '김도현', '김동윤', '김동하', '김아인',
@@ -90,13 +98,16 @@ export default function CurrentPage({ params }: PageProps) {
       '최진명', '허선호', '황동규'
     ]
     
-    // 3반 36명, 5반 35명, 6반 34명, 7반 35명, 8반 35명, 나머지 36명
+    // 3반 36명, 4반 35명, 5반 35명, 6반 34명, 7반 35명, 8반 35명, 나머지 36명
     let studentCount = 36
     let nameList: string[] = []
     
     if (classNumber === 3) {
       studentCount = 36
       nameList = class3Names
+    } else if (classNumber === 4) {
+      studentCount = 35
+      nameList = class4Names
     } else if (classNumber === 5) {
       studentCount = 35
       nameList = class5Names
@@ -306,8 +317,7 @@ export default function CurrentPage({ params }: PageProps) {
   })
 
   return (
-    <ClassGuard classId={`2-${classNumber}`}>
-      <div className="h-screen bg-gray-50 p-2 flex flex-col overflow-hidden">
+    <div className="h-screen bg-gray-50 p-2 flex flex-col overflow-hidden">
       {/* 헤더 */}
       <div className="flex items-center justify-between mb-2 flex-shrink-0">
         <div className="flex items-center gap-2">
@@ -400,8 +410,8 @@ export default function CurrentPage({ params }: PageProps) {
                   disabled={isPresent}
                 >
                   <div className="flex flex-col items-center justify-center">
-                    {classNumber === 3 || classNumber === 5 || classNumber === 6 || classNumber === 7 || classNumber === 8 ? (
-                      // 3반, 5반, 6반, 7반, 8반: 이름(번호) 형식
+                    {classNumber === 3 || classNumber === 4 || classNumber === 5 || classNumber === 6 || classNumber === 7 || classNumber === 8 ? (
+                      // 3반, 4반, 5반, 6반, 7반, 8반: 이름(번호) 형식
                       <div className="flex flex-col items-center">
                         <span className="text-base md:text-lg font-bold leading-tight">{student.name}</span>
                         <span className="text-xs opacity-80">({student.id}번)</span>
@@ -615,6 +625,5 @@ export default function CurrentPage({ params }: PageProps) {
         </div>
       )}
       </div>
-    </ClassGuard>
   )
 }

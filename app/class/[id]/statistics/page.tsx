@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { db } from '@/lib/firebase'
 import { collection, query, where, onSnapshot, deleteDoc, doc } from 'firebase/firestore'
 import type { Student } from '@/types'
-import ClassGuard from '@/components/ClassGuard'
 
 interface PageProps {
   params: {
@@ -38,6 +37,15 @@ export default function StatisticsPage({ params }: PageProps) {
       '방준서', '서도훈', '석진오', '손우린', '오태윤', '우승엽', '유어진', '이민혁',
       '이성민', '이승준', '이승훈', '이재성', '이채환', '장래겸', '장우진', '전재신',
       '정현우', '조성윤', '조승찬', '최승호'
+    ]
+    
+    // 4반 학생 명단 (35명)
+    const class4Names = [
+      '김기덕', '김대겸', '김도현', '김민준', '김성윤', '김시온', '김연우', '김재민',
+      '김재윤', '김종규', '김태환', '노승민', '박경돈', '박준형', '박태정', '송영준',
+      '신효섭', '심동원', '안호재', '오승민', '오시훈', '유재민', '이규성', '이승헌',
+      '이주안', '정승원', '조유신', '지선우', '천태양', '최성현', '추유찬', '황규탁',
+      '황서준', '황찬영', '황태민'
     ]
     
     // 5반 학생 명단
@@ -76,13 +84,16 @@ export default function StatisticsPage({ params }: PageProps) {
       '최진명', '허선호', '황동규'
     ]
     
-    // 3반 36명, 5반 35명, 6반 34명, 7반 35명, 8반 35명, 나머지 36명
+    // 3반 36명, 4반 35명, 5반 35명, 6반 34명, 7반 35명, 8반 35명, 나머지 36명
     let studentCount = 36
     let nameList: string[] = []
     
     if (classNumber === 3) {
       studentCount = 36
       nameList = class3Names
+    } else if (classNumber === 4) {
+      studentCount = 35
+      nameList = class4Names
     } else if (classNumber === 5) {
       studentCount = 35
       nameList = class5Names
@@ -199,8 +210,7 @@ export default function StatisticsPage({ params }: PageProps) {
   }
 
   return (
-    <ClassGuard classId={`2-${classNumber}`}>
-      <div className="min-h-screen bg-gray-50 p-3 sm:p-4 md:p-8">
+    <div className="min-h-screen bg-gray-50 p-3 sm:p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         {/* 헤더 */}
         <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
@@ -497,6 +507,5 @@ export default function StatisticsPage({ params }: PageProps) {
         </div>
       )}
     </div>
-  </ClassGuard>
   )
 }

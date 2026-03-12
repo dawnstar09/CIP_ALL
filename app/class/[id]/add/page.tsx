@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation'
 import { db } from '@/lib/firebase'
 import { collection, addDoc, doc, getDoc } from 'firebase/firestore'
 import type { Student, Absence, AbsenceReason } from '@/types'
-import ClassGuard from '@/components/ClassGuard'
 import { useAuth } from '@/lib/auth-context'
 
 interface PageProps {
@@ -45,6 +44,15 @@ export default function AddPage({ params }: PageProps) {
       '정현우', '조성윤', '조승찬', '최승호'
     ]
     
+    // 4반 학생 명단 (35명)
+    const class4Names = [
+      '김기덕', '김대겸', '김도현', '김민준', '김성윤', '김시온', '김연우', '김재민',
+      '김재윤', '김종규', '김태환', '노승민', '박경돈', '박준형', '박태정', '송영준',
+      '신효섭', '심동원', '안호재', '오승민', '오시훈', '유재민', '이규성', '이승헌',
+      '이주안', '정승원', '조유신', '지선우', '천태양', '최성현', '추유찬', '황규탁',
+      '황서준', '황찬영', '황태민'
+    ]
+    
     // 5반 학생 명단
     const class5Names = [
       '고원세', '곽도영', '권도현', '김다원', '김도현', '김동윤', '김동하', '김아인',
@@ -81,13 +89,16 @@ export default function AddPage({ params }: PageProps) {
       '최진명', '허선호', '황동규'
     ]
     
-    // 3반 36명, 5반 35명, 6반 34명, 7반 35명, 8반 35명, 나머지 36명
+    // 3반 36명, 4반 35명, 5반 35명, 6반 34명, 7반 35명, 8반 35명, 나머지 36명
     let studentCount = 36
     let nameList: string[] = []
     
     if (classNumber === 3) {
       studentCount = 36
       nameList = class3Names
+    } else if (classNumber === 4) {
+      studentCount = 35
+      nameList = class4Names
     } else if (classNumber === 5) {
       studentCount = 35
       nameList = class5Names
@@ -105,9 +116,17 @@ export default function AddPage({ params }: PageProps) {
     const studentList: Student[] = Array.from({ length: studentCount }, (_, i) => ({
       id: i + 1,
       name: nameList.length > 0 ? nameList[i] : `${i + 1}번 학생`
-    }))
+    }))  
     setStudents(studentList)
   }, [classNumber])
+
+  // 로그인 체크 - 로그인 안 되어 있으면 홈으로 리다이렉트
+  useEffect(() => {
+    if (user === null) {
+      alert('로그인이 필요한 기능입니다')
+      router.push('/')
+    }
+  }, [user, router])
 
   // 학생 role인 경우 본인 정보 가져오기
   useEffect(() => {
@@ -225,9 +244,8 @@ export default function AddPage({ params }: PageProps) {
   }
 
   return (
-    <ClassGuard classId={`2-${classNumber}`}>
-      <div className="min-h-screen bg-gray-50 p-3 sm:p-4 md:p-8">
-        <div className="max-w-3xl mx-auto">
+    <div className="min-h-screen bg-gray-50 p-3 sm:p-4 md:p-8">
+      <div className="max-w-3xl mx-auto">
           {/* 헤더 */}
           <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
           <Link
@@ -319,7 +337,7 @@ export default function AddPage({ params }: PageProps) {
                       : 'bg-gray-100 text-gray-700 active:bg-gray-200'
                   }`}
                 >
-                  {classNumber === 3 || classNumber === 5 || classNumber === 6 || classNumber === 7 || classNumber === 8 ? (
+                  {classNumber === 3 || classNumber === 4 || classNumber === 5 || classNumber === 6 || classNumber === 7 || classNumber === 8 ? (
                     <div className="flex flex-col items-center text-center leading-tight">
                       <span className="text-sm font-bold">{student.name}</span>
                       <span className="text-xs opacity-75 mt-0.5">({student.id})</span>
@@ -403,6 +421,5 @@ export default function AddPage({ params }: PageProps) {
         </div>
       </div>
       </div>
-    </ClassGuard>
   )
 }
