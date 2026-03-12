@@ -5,18 +5,34 @@ import { initializeApp, getApps } from 'firebase/app'
 import { getFirestore } from 'firebase/firestore'
 import { getAuth, GoogleAuthProvider } from 'firebase/auth'
 
-const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
+// 환경변수 검증 - 빌드 시점에 체크
+const requiredEnvVars = [
+  'NEXT_PUBLIC_FIREBASE_API_KEY',
+  'NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN',
+  'NEXT_PUBLIC_FIREBASE_PROJECT_ID',
+  'NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET',
+  'NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID',
+  'NEXT_PUBLIC_FIREBASE_APP_ID'
+] as const
+
+const missingVars = requiredEnvVars.filter(
+  varName => !process.env[varName]
+)
+
+if (missingVars.length > 0) {
+  throw new Error(
+    `❌ Missing required environment variables:\n${missingVars.join('\n')}\n\n` +
+    'Please check your .env.local file or Vercel environment variables.'
+  )
 }
 
-// Firebase 설정 검증
-if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
-  console.warn('⚠️ Firebase 설정이 완료되지 않았습니다. .env.local 파일을 확인하세요.')
+const firebaseConfig = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY!,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN!,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID!,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET!,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID!,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID!
 }
 
 // Initialize Firebase
@@ -25,9 +41,10 @@ const db = getFirestore(app)
 const auth = getAuth(app)
 const googleProvider = new GoogleAuthProvider()
 
-// Google 로그인 설정: 학교 도메인만 허용
+// Google 로그인 보안 설정
 googleProvider.setCustomParameters({
-  hd: 'dshs.kr' // 대성고등학교 도메인
+  hd: 'dshs.kr', // 대성고등학교 도메인만 허용
+  prompt: 'select_account' // 계정 선택 화면 항상 표시
 })
 
 export { app, db, auth, googleProvider }

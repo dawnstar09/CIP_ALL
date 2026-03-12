@@ -35,6 +35,15 @@ export default function AddPage({ params }: PageProps) {
   }
 
   useEffect(() => {
+    // 2반 학생 명단 (36명)
+    const class2Names = [
+      '강원우', '강한결', '김민섭', '김태민', '박건호', '박상효', '박현규', '석지환',
+      '신준우', '신현우', '안우찬', '양기준', '양준식', '오채운', '우현호', '윤종홍',
+      '이성현', '이승재', '이준상', '이중희', '임문선', '임은찬', '임정우', '임희준',
+      '장재원', '장진우', '전우준', '정경준', '정재욱', '조영진', '조하률', '조하빈',
+      '차민준', '천정욱', '최연우', '최윤호'
+    ]
+    
     // 3반 학생 명단
     const class3Names = [
       '고정현', '권오현', '김가빈', '김건우', '김민성', '김민재', '김선준', '김준우',
@@ -89,11 +98,14 @@ export default function AddPage({ params }: PageProps) {
       '최진명', '허선호', '황동규'
     ]
     
-    // 3반 36명, 4반 35명, 5반 35명, 6반 34명, 7반 35명, 8반 35명, 나머지 36명
+    // 2반 36명, 3반 36명, 4반 35명, 5반 35명, 6반 34명, 7반 35명, 8반 35명, 나머지 36명
     let studentCount = 36
     let nameList: string[] = []
     
-    if (classNumber === 3) {
+    if (classNumber === 2) {
+      studentCount = 36
+      nameList = class2Names
+    } else if (classNumber === 3) {
       studentCount = 36
       nameList = class3Names
     } else if (classNumber === 4) {
@@ -337,7 +349,7 @@ export default function AddPage({ params }: PageProps) {
                       : 'bg-gray-100 text-gray-700 active:bg-gray-200'
                   }`}
                 >
-                  {classNumber === 3 || classNumber === 4 || classNumber === 5 || classNumber === 6 || classNumber === 7 || classNumber === 8 ? (
+                  {classNumber === 2 || classNumber === 3 || classNumber === 4 || classNumber === 5 || classNumber === 6 || classNumber === 7 || classNumber === 8 ? (
                     <div className="flex flex-col items-center text-center leading-tight">
                       <span className="text-sm font-bold">{student.name}</span>
                       <span className="text-xs opacity-75 mt-0.5">({student.id})</span>
