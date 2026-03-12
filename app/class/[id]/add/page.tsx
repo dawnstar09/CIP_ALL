@@ -36,6 +36,15 @@ export default function AddPage({ params }: PageProps) {
   }
 
   useEffect(() => {
+    // 3반 학생 명단
+    const class3Names = [
+      '고정현', '권오현', '김가빈', '김건우', '김민성', '김민재', '김선준', '김준우',
+      '김채원', '김태민', '김현서', '김형준', '문서준', '박민준', '박준이', '박지환',
+      '방준서', '서도훈', '석진오', '손우린', '오태윤', '우승엽', '유어진', '이민혁',
+      '이성민', '이승준', '이승훈', '이재성', '이채환', '장래겸', '장우진', '전재신',
+      '정현우', '조성윤', '조승찬', '최승호'
+    ]
+    
     // 5반 학생 명단
     const class5Names = [
       '고원세', '곽도영', '권도현', '김다원', '김도현', '김동윤', '김동하', '김아인',
@@ -54,16 +63,31 @@ export default function AddPage({ params }: PageProps) {
       '최유진', '최태웅'
     ]
     
-    // 5반은 35명, 6반은 34명, 다른 반은 36명
+    // 7반 학생 명단
+    const class7Names = [
+      '강건', '강류헌', '강세훈', '강우빈', '구동하', '김건희', '김민혁', '김은성',
+      '김준희', '김태율', '김태호', '김현', '김현식', '문강윤', '박민규', '박시우',
+      '박주은', '박준성', '박지윤', '배준휘', '안동준', '엄현식', '유이준', '윤서준',
+      '이경민', '이남주', '이종승', '이현서', '임강현', '임성주', '장재민', '장해찬',
+      '조성재', '조현빈', '황성연'
+    ]
+    
+    // 5반은 35명, 6반은 34명, 7반은 35명, 나머지는 36명
     let studentCount = 36
     let nameList: string[] = []
     
-    if (classNumber === 5) {
+    if (classNumber === 3) {
+      studentCount = 36
+      nameList = class3Names
+    } else if (classNumber === 5) {
       studentCount = 35
       nameList = class5Names
     } else if (classNumber === 6) {
       studentCount = 34
       nameList = class6Names
+    } else if (classNumber === 7) {
+      studentCount = 35
+      nameList = class7Names
     }
     
     const studentList: Student[] = Array.from({ length: studentCount }, (_, i) => ({
@@ -283,7 +307,7 @@ export default function AddPage({ params }: PageProps) {
                       : 'bg-gray-100 text-gray-700 active:bg-gray-200'
                   }`}
                 >
-                  {classNumber === 5 || classNumber === 6 ? (
+                  {classNumber === 3 || classNumber === 5 || classNumber === 6 || classNumber === 7 ? (
                     <div className="flex flex-col items-center text-center leading-tight">
                       <span className="text-sm font-bold">{student.name}</span>
                       <span className="text-xs opacity-75 mt-0.5">({student.id})</span>
