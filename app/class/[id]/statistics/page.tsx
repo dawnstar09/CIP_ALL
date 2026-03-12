@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { db } from '@/lib/firebase'
 import { collection, query, where, onSnapshot, deleteDoc, doc } from 'firebase/firestore'
 import type { Student } from '@/types'
+import ClassGuard from '@/components/ClassGuard'
 
 interface PageProps {
   params: {
@@ -143,7 +144,8 @@ export default function StatisticsPage({ params }: PageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-3 sm:p-4 md:p-8">
+    <ClassGuard classId={`2-${classNumber}`}>
+      <div className="min-h-screen bg-gray-50 p-3 sm:p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         {/* 헤더 */}
         <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
@@ -438,5 +440,6 @@ export default function StatisticsPage({ params }: PageProps) {
         </div>
       )}
     </div>
+  </ClassGuard>
   )
 }

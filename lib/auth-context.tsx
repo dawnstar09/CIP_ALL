@@ -31,10 +31,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setFirebaseUser(firebaseUser)
       
-      if (firebaseUser) {
-        // Firestore에서 사용자 정보 가져오기
+      if (firebaseUser && firebaseUser.email) {
+        // Firestore에서 사용자 정보 가져오기 (이메일로 조회)
         try {
-          const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid))
+          const userDoc = await getDoc(doc(db, 'users', firebaseUser.email))
           if (userDoc.exists()) {
             const userData = userDoc.data()
             setUser({
