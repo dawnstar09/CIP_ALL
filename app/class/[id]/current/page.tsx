@@ -364,8 +364,8 @@ export default function CurrentPage({ params }: PageProps) {
                   disabled={isPresent}
                 >
                   <div className="flex flex-col items-center justify-center">
-                    {classNumber === 5 ? (
-                      // 5반: 이름(번호) 형식
+                    {classNumber === 5 || classNumber === 6 ? (
+                      // 5반, 6반: 이름(번호) 형식
                       <div className="flex flex-col items-center">
                         <span className="text-base md:text-lg font-bold leading-tight">{student.name}</span>
                         <span className="text-xs opacity-80">({student.id}번)</span>

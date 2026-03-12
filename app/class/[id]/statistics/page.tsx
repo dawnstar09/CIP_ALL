@@ -233,7 +233,9 @@ export default function StatisticsPage({ params }: PageProps) {
                 <option value="">전체 학생</option>
                 {students.map(student => (
                   <option key={student.id} value={student.id}>
-                    {student.id}번 학생
+                    {classNumber === 5 || classNumber === 6 
+                      ? `${student.name} (${student.id}번)` 
+                      : `${student.id}번 학생`}
                   </option>
                 ))}
               </select>

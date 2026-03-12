@@ -283,7 +283,7 @@ export default function AddPage({ params }: PageProps) {
                       : 'bg-gray-100 text-gray-700 active:bg-gray-200'
                   }`}
                 >
-                  {classNumber === 5 ? (
+                  {classNumber === 5 || classNumber === 6 ? (
                     <div className="flex flex-col items-center text-center leading-tight">
                       <span className="text-sm font-bold">{student.name}</span>
                       <span className="text-xs opacity-75 mt-0.5">({student.id})</span>
