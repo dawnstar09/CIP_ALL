@@ -40,11 +40,30 @@ export default function StatisticsPage({ params }: PageProps) {
       '한상휘', '허원', '황인환'
     ]
     
-    // 5반은 35명, 다른 반은 36명
-    const studentCount = classNumber === 5 ? 35 : 36
+    // 6반 학생 명단
+    const class6Names = [
+      '강주형', '고진용', '권율', '김경민', '김경태', '김용준', '김제겸', '김지효',
+      '김하윤', '김현성', '목지안', '백시우', '서재훈', '서지후', '성무빈', '송재호',
+      '신예준', '신준모', '양서희', '오태진', '윤수찬', '윤정연', '윤하유', '이지성',
+      '이지혁', '이지후', '전윤우', '정준기', '정하율', '조동현', '차이한', '최담호',
+      '최유진', '최태웅'
+    ]
+    
+    // 5반은 35명, 6반은 34명, 다른 반은 36명
+    let studentCount = 36
+    let nameList: string[] = []
+    
+    if (classNumber === 5) {
+      studentCount = 35
+      nameList = class5Names
+    } else if (classNumber === 6) {
+      studentCount = 34
+      nameList = class6Names
+    }
+    
     const studentList: Student[] = Array.from({ length: studentCount }, (_, i) => ({
       id: i + 1,
-      name: classNumber === 5 ? class5Names[i] : `${i + 1}번 학생`
+      name: nameList.length > 0 ? nameList[i] : `${i + 1}번 학생`
     }))
     setStudents(studentList)
   }, [classNumber])
