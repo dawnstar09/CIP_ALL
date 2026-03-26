@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { db } from '@/lib/firebase'
 import { collection, query, where, onSnapshot, deleteDoc, doc, updateDoc, getDocs, addDoc } from 'firebase/firestore'
+import { useAuth } from '@/lib/auth-context'
 import type { Absence, Student, AttendanceStatus, AbsenceReason } from '@/types'
 
 interface PageProps {
@@ -30,6 +31,7 @@ const getCurrentPeriod = (): 1 | 2 | 3 => {
 export default function CurrentPage({ params }: PageProps) {
   const classNumber = parseInt(params.id)
   const router = useRouter()
+  const { user } = useAuth()
   const [currentPeriod, setCurrentPeriod] = useState<1 | 2 | 3>(getCurrentPeriod())
   const [currentDate, setCurrentDate] = useState(new Date().toISOString().split('T')[0])
   const [currentTime, setCurrentTime] = useState(new Date())
@@ -41,8 +43,7 @@ export default function CurrentPage({ params }: PageProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [editReason, setEditReason] = useState<AbsenceReason | ''>('')
   const [editDetail, setEditDetail] = useState('')
-  const [showIdVerification, setShowIdVerification] = useState(false)
-  const [verificationId, setVerificationId] = useState('')
+  const [showConfirmModal, setShowConfirmModal] = useState(false)
 
   const reasons: AbsenceReason[] = ['병원', '학원', '동아리', '방과후', '기타']
 
@@ -116,7 +117,7 @@ export default function CurrentPage({ params }: PageProps) {
       '김상준', '김신', '김예준', '김지후', '나기현', '민승기', '15번 학생', '신민호',
       '염민준', '윤준원', '이건희', '이권우', '이승훈', '이준현', '임지원', '전재원',
       '전희재', '정우성', '조윤찬', '지민건', '진찬종', '최동현', '최온유', '최윤우',
-      '최진명', '허선호', '황동규'
+      '최진명', '허선호', '황동규', '양승우'
     ]
     
     // 2반 36명, 3반 36명, 4반 35명, 5반 35명, 6반 34명, 7반 35명, 8반 35명, 나머지 36명
@@ -142,7 +143,7 @@ export default function CurrentPage({ params }: PageProps) {
       studentCount = 35
       nameList = class7Names
     } else if (classNumber === 8) {
-      studentCount = 35
+      studentCount = 36
       nameList = class8Names
     }
     
@@ -281,18 +282,30 @@ export default function CurrentPage({ params }: PageProps) {
   }, [classNumber, currentDate, currentPeriod, students])
 
   const handleRemoveAbsence = async (absence: Absence) => {
-    // ID 인증 모달 표시
-    setShowIdVerification(true)
+    // 본인 확인 모달 표시
+    setShowConfirmModal(true)
   }
 
   const confirmRemoveAbsence = async () => {
     if (!selectedAbsence) return
     
-    // ID 검증
-    const enteredId = parseInt(verificationId)
-    if (isNaN(enteredId) || enteredId !== selectedAbsence.studentId) {
-      alert('학번이 일치하지 않습니다.')
-      setVerificationId('')
+    // 로그인 확인
+    if (!user || !user.email) {
+      alert('로그인이 필요합니다.')
+      return
+    }
+    
+    // 이메일 검증 (로그인된 계정과 불참 기록의 이메일 비교)
+    const currentUserEmail = user.email.trim().toLowerCase()
+    const recordedEmail = selectedAbsence.studentEmail?.toLowerCase()
+    
+    if (!recordedEmail) {
+      alert('이 불참 기록에는 이메일 정보가 없습니다.')
+      return
+    }
+    
+    if (currentUserEmail !== recordedEmail) {
+      alert('본인의 불참 기록만 변경할 수 있습니다.')
       return
     }
     
@@ -300,8 +313,7 @@ export default function CurrentPage({ params }: PageProps) {
       if (selectedAbsence.id) {
         await deleteDoc(doc(db, 'absences', selectedAbsence.id))
         setSelectedAbsence(null)
-        setShowIdVerification(false)
-        setVerificationId('')
+        setShowConfirmModal(false)
         alert('참가로 변경되었습니다.')
       }
     } catch (error) {
@@ -666,17 +678,16 @@ export default function CurrentPage({ params }: PageProps) {
         </div>
       )}
 
-      {/* ID 인증 모달 */}
-      {showIdVerification && selectedAbsence && (
+      {/* 본인 확인 모달 */}
+      {showConfirmModal && selectedAbsence && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-2xl max-w-md w-full p-6">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-lg font-bold text-gray-900">🔐 본인 인증</h2>
+              <h2 className="text-lg font-bold text-gray-900">✅ 참가 변경 확인</h2>
               <button
                 type="button"
                 onClick={() => {
-                  setShowIdVerification(false)
-                  setVerificationId('')
+                  setShowConfirmModal(false)
                 }}
                 className="text-gray-400 hover:text-gray-600 text-2xl"
               >
@@ -685,29 +696,21 @@ export default function CurrentPage({ params }: PageProps) {
             </div>
 
             <div className="space-y-4 mb-6">
-              <div className="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-4">
-                <p className="text-sm text-yellow-800">
-                  <strong>{selectedAbsence.studentName}</strong> 학생의 불참을 참가로 변경하려면 본인의 학번을 입력하세요.
+              <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
+                <p className="text-sm text-blue-800 leading-relaxed">
+                  <strong>{selectedAbsence.studentName}</strong> 학생의 불참을 참가로 변경하시겠습니까?
                 </p>
+                {user?.email && (
+                  <p className="text-xs text-blue-600 mt-2">
+                    로그인 계정: {user.email}
+                  </p>
+                )}
               </div>
               
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  학번 (번호만 입력)
-                </label>
-                <input
-                  type="number"
-                  value={verificationId}
-                  onChange={(e) => setVerificationId(e.target.value)}
-                  placeholder="예: 1, 2, 3..."
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-lg text-center"
-                  autoFocus
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter') {
-                      confirmRemoveAbsence()
-                    }
-                  }}
-                />
+              <div className="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-3">
+                <p className="text-xs text-yellow-700">
+                  본인의 불참 기록만 변경할 수 있습니다.
+                </p>
               </div>
             </div>
             
@@ -715,8 +718,7 @@ export default function CurrentPage({ params }: PageProps) {
               <button
                 type="button"
                 onClick={() => {
-                  setShowIdVerification(false)
-                  setVerificationId('')
+                  setShowConfirmModal(false)
                 }}
                 className="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-lg transition-colors"
               >
@@ -727,7 +729,7 @@ export default function CurrentPage({ params }: PageProps) {
                 onClick={confirmRemoveAbsence}
                 className="flex-1 px-4 py-3 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-semibold rounded-lg transition-colors shadow-sm"
               >
-                확인
+                참가로 변경
               </button>
             </div>
           </div>
