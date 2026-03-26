@@ -197,6 +197,7 @@ export default function AddPage({ params }: PageProps) {
           classNumber,
           studentId: selectedStudent,
           studentName: student.name,
+          studentEmail: user?.email || '',
           reason: selectedReason,
           detail: detail,
           date: currentDate,
