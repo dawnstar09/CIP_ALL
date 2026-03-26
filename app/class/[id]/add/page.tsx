@@ -4,9 +4,8 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { db } from '@/lib/firebase'
-import { collection, addDoc, doc, getDoc } from 'firebase/firestore'
+import { collection, addDoc } from 'firebase/firestore'
 import type { Student, Absence, AbsenceReason } from '@/types'
-import { useAuth } from '@/lib/auth-context'
 
 interface PageProps {
   params: {
@@ -17,14 +16,12 @@ interface PageProps {
 export default function AddPage({ params }: PageProps) {
   const classNumber = parseInt(params.id)
   const router = useRouter()
-  const { user } = useAuth()
   const [students, setStudents] = useState<Student[]>([])
   const [selectedStudent, setSelectedStudent] = useState<number | null>(null)
   const [selectedPeriods, setSelectedPeriods] = useState<(1 | 2 | 3)[]>([1])
   const [selectedReason, setSelectedReason] = useState<AbsenceReason | null>(null)
   const [detail, setDetail] = useState('')
   const [currentDate, setCurrentDate] = useState(new Date().toISOString().split('T')[0])
-  const [myStudentInfo, setMyStudentInfo] = useState<{ id: number; name: string } | null>(null)
 
   const reasons: AbsenceReason[] = ['병원', '학원', '동아리', '방과후', '기타']
   
@@ -132,40 +129,7 @@ export default function AddPage({ params }: PageProps) {
     setStudents(studentList)
   }, [classNumber])
 
-  // 로그인 체크 - 로그인 안 되어 있으면 홈으로 리다이렉트
-  useEffect(() => {
-    if (user === null) {
-      alert('로그인이 필요한 기능입니다')
-      router.push('/')
-    }
-  }, [user, router])
-
-  // 학생 role인 경우 본인 정보 가져오기
-  useEffect(() => {
-    async function fetchMyStudentInfo() {
-      if (!user || user.role !== 'student' || !user.email) return
-      
-      try {
-        const studentDoc = await getDoc(
-          doc(db, 'classes', `2-${classNumber}`, 'students', user.email)
-        )
-        
-        if (studentDoc.exists()) {
-          const data = studentDoc.data()
-          const studentInfo = {
-            id: data.id,
-            name: data.name
-          }
-          setMyStudentInfo(studentInfo)
-          setSelectedStudent(data.id) // 자동으로 본인 선택
-        }
-      } catch (error) {
-        console.error('학생 정보 로드 실패:', error)
-      }
-    }
-    
-    fetchMyStudentInfo()
-  }, [user, classNumber])
+  // 로그인 체크 제거 - 누구나 접근 가능
 
   const togglePeriod = (period: 1 | 2 | 3) => {
     if (selectedPeriods.includes(period)) {
@@ -197,18 +161,6 @@ export default function AddPage({ params }: PageProps) {
   }
 
   const handleSubmit = async () => {
-    // 학생인 경우 본인 정보만 추가 가능하도록 검증
-    if (user?.role === 'student') {
-      if (!myStudentInfo) {
-        alert('학생 정보를 불러올 수 없습니다.')
-        return
-      }
-      if (selectedStudent !== myStudentInfo.id) {
-        alert('본인의 불참만 추가할 수 있습니다.')
-        return
-      }
-    }
-    
     if (!selectedStudent) {
       alert('학생을 선택하세요')
       return
@@ -314,54 +266,34 @@ export default function AddPage({ params }: PageProps) {
           </div>
 
           {/* 학생 선택 */}
-          {user?.role === 'student' ? (
-            // 학생인 경우: 본인 정보만 표시
-            <div>
-              <label className="block text-base sm:text-lg font-semibold text-gray-700 mb-3 sm:mb-4">
-                학생 정보
-              </label>
-              <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-5">
-                {myStudentInfo ? (
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-blue-900">{myStudentInfo.name}</div>
-                    <div className="text-lg text-blue-700 mt-2">{myStudentInfo.id}번</div>
+          <div>
+            <label className="block text-base sm:text-lg font-semibold text-gray-700 mb-3 sm:mb-4">
+              학생 선택
+            </label>
+            <div className="grid grid-cols-5 sm:grid-cols-7 gap-2 sm:gap-3 max-h-80 overflow-y-auto p-3 sm:p-4 border-2 border-gray-300 rounded-lg">
+              {students.map((student) => (
+              <button
+                key={student.id}
+                type="button"
+                onClick={() => setSelectedStudent(student.id)}
+                className={`p-3 rounded-lg font-bold transition-colors touch-manipulation min-h-[60px] ${
+                  selectedStudent === student.id
+                    ? 'bg-blue-600 text-white shadow-lg'
+                    : 'bg-gray-100 text-gray-700 active:bg-gray-200'
+                }`}
+              >
+                {classNumber === 2 || classNumber === 3 || classNumber === 4 || classNumber === 5 || classNumber === 6 || classNumber === 7 || classNumber === 8 ? (
+                  <div className="flex flex-col items-center text-center leading-tight">
+                    <span className="text-sm font-bold">{student.name}</span>
+                    <span className="text-xs opacity-75 mt-0.5">({student.id})</span>
                   </div>
                 ) : (
-                  <div className="text-center text-gray-500">정보를 불러오는 중...</div>
+                  student.id
                 )}
-              </div>
-            </div>
-          ) : (
-            // 교사/관리자인 경우: 모든 학생 선택 가능
-            <div>
-              <label className="block text-base sm:text-lg font-semibold text-gray-700 mb-3 sm:mb-4">
-                학생 선택
-              </label>
-              <div className="grid grid-cols-5 sm:grid-cols-7 gap-2 sm:gap-3 max-h-80 overflow-y-auto p-3 sm:p-4 border-2 border-gray-300 rounded-lg">
-                {students.map((student) => (
-                <button
-                  key={student.id}
-                  type="button"
-                  onClick={() => setSelectedStudent(student.id)}
-                  className={`p-3 rounded-lg font-bold transition-colors touch-manipulation min-h-[60px] ${
-                    selectedStudent === student.id
-                      ? 'bg-blue-600 text-white shadow-lg'
-                      : 'bg-gray-100 text-gray-700 active:bg-gray-200'
-                  }`}
-                >
-                  {classNumber === 2 || classNumber === 3 || classNumber === 4 || classNumber === 5 || classNumber === 6 || classNumber === 7 || classNumber === 8 ? (
-                    <div className="flex flex-col items-center text-center leading-tight">
-                      <span className="text-sm font-bold">{student.name}</span>
-                      <span className="text-xs opacity-75 mt-0.5">({student.id})</span>
-                    </div>
-                  ) : (
-                    student.id
-                  )}
-                </button>
-              ))}
-            </div>
+              </button>
+            ))}
           </div>
-          )}
+          </div>
 
           {/* 불참 사유 선택 */}
           <div>
