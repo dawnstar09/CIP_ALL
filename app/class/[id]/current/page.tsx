@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { db } from '@/lib/firebase'
-import { collection, query, where, onSnapshot, deleteDoc, doc, updateDoc, getDocs, addDoc } from 'firebase/firestore'
+import { collection, query, where, onSnapshot, deleteDoc, doc, updateDoc, getDocs, addDoc, getDoc } from 'firebase/firestore'
 import { useAuth } from '@/lib/auth-context'
 import type { Absence, Student, AttendanceStatus, AbsenceReason } from '@/types'
 
@@ -299,14 +299,34 @@ export default function CurrentPage({ params }: PageProps) {
     const currentUserEmail = user.email.trim().toLowerCase()
     const recordedEmail = selectedAbsence.studentEmail?.trim().toLowerCase()
     
-    if (!recordedEmail) {
-      alert('이 불참 기록에는 이메일 정보가 없습니다. 관리자에게 문의하세요.')
-      return
-    }
-    
-    if (currentUserEmail !== recordedEmail) {
-      alert('본인의 불참 기록만 변경할 수 있습니다.')
-      return
+    if (recordedEmail) {
+      // 이메일 정보가 있는 경우: 이메일로 검증
+      if (currentUserEmail !== recordedEmail) {
+        alert('본인의 불참 기록만 변경할 수 있습니다.')
+        return
+      }
+    } else {
+      // 이메일 정보가 없는 경우: 로그인한 사용자의 학생 번호로 검증
+      try {
+        const studentDoc = await getDoc(
+          doc(db, 'classes', `2-${classNumber}`, 'students', user.email)
+        )
+        
+        if (studentDoc.exists()) {
+          const studentData = studentDoc.data()
+          if (studentData.id !== selectedAbsence.studentId) {
+            alert('본인의 불참 기록만 변경할 수 있습니다.')
+            return
+          }
+        } else {
+          alert('학생 정보를 찾을 수 없습니다.')
+          return
+        }
+      } catch (error) {
+        console.error('학생 정보 조회 실패:', error)
+        alert('본인 확인에 실패했습니다.')
+        return
+      }
     }
     
     try {
