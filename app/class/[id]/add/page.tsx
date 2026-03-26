@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { db } from '@/lib/firebase'
-import { collection, addDoc } from 'firebase/firestore'
-import type { Student, AbsenceReason } from '@/types'
+import { collection, addDoc, doc, getDoc } from 'firebase/firestore'
+import type { AbsenceReason } from '@/types'
 import { useAuth } from '@/lib/auth-context'
 
 interface PageProps {
@@ -18,12 +18,11 @@ export default function AddPage({ params }: PageProps) {
   const classNumber = parseInt(params.id)
   const router = useRouter()
   const { user } = useAuth()
-  const [students, setStudents] = useState<Student[]>([])
-  const [selectedStudent, setSelectedStudent] = useState<number | null>(null)
   const [selectedPeriods, setSelectedPeriods] = useState<(1 | 2 | 3)[]>([1])
   const [selectedReason, setSelectedReason] = useState<AbsenceReason | null>(null)
   const [detail, setDetail] = useState('')
   const [currentDate, setCurrentDate] = useState(new Date().toISOString().split('T')[0])
+  const [myStudentInfo, setMyStudentInfo] = useState<{ id: number; name: string } | null>(null)
 
   const reasons: AbsenceReason[] = ['병원', '학원', '동아리', '방과후', '기타']
   
@@ -33,104 +32,6 @@ export default function AddPage({ params }: PageProps) {
     3: '20:10-21:00'
   }
 
-  useEffect(() => {
-    // 2반 학생 명단 (36명)
-    const class2Names = [
-      '강원우', '강한결', '김민섭', '김태민', '박건호', '박상효', '박현규', '석지환',
-      '신준우', '신현우', '안우찬', '양기준', '양준식', '오채운', '우현호', '윤종홍',
-      '이성현', '이승재', '이준상', '이중희', '임문선', '임은찬', '임정우', '임희준',
-      '장재원', '장진우', '전우준', '정경준', '정재욱', '조영진', '조하률', '조하빈',
-      '차민준', '천정욱', '최연우', '최윤호'
-    ]
-    
-    // 3반 학생 명단
-    const class3Names = [
-      '고정현', '권오현', '김가빈', '김건우', '김민성', '김민재', '김선준', '김준우',
-      '김채원', '김태민', '김현서', '김형준', '문서준', '박민준', '박준이', '박지환',
-      '방준서', '서도훈', '석진오', '손우린', '오태윤', '우승엽', '유어진', '이민혁',
-      '이성민', '이승준', '이승훈', '이재성', '이채환', '장래겸', '장우진', '전재신',
-      '정현우', '조성윤', '조승찬', '최승호'
-    ]
-    
-    // 4반 학생 명단 (35명)
-    const class4Names = [
-      '김기덕', '김대겸', '김도현', '김민준', '김성윤', '김시온', '김연우', '김재민',
-      '김재윤', '김종규', '김태환', '노승민', '박경돈', '박준형', '박태정', '송영준',
-      '신효섭', '심동원', '안호재', '오승민', '오시훈', '유재민', '이규성', '이승헌',
-      '이주안', '정승원', '조유신', '지선우', '천태양', '최성현', '추유찬', '황규탁',
-      '황서준', '황찬영', '황태민'
-    ]
-    
-    // 5반 학생 명단
-    const class5Names = [
-      '고원세', '곽도영', '권도현', '김다원', '김도현', '김동윤', '김동하', '김아인',
-      '김영광', '김준혁', '김태훈', '박정후', '박찬', '박찬빈', '방지우', '손동현',
-      '엄도현', '윤영인', '이건희', '이민주', '이시우', '이인수', '이주환', '이준성',
-      '이태성', '장연진', '장희원', '전우재', '정유찬', '조한겸', '최준표', '최현서',
-      '한상휘', '허원', '황인환'
-    ]
-    
-    // 6반 학생 명단
-    const class6Names = [
-      '강주형', '고진용', '권율', '김경민', '김경태', '김용준', '김제겸', '김지효',
-      '김하윤', '김현성', '목지안', '백시우', '서재훈', '서지후', '성무빈', '송재호',
-      '신예준', '신준모', '양서희', '오태진', '윤수찬', '윤정연', '윤하유', '이지성',
-      '이지혁', '이지후', '전윤우', '정준기', '정하율', '조동현', '차이한', '최담호',
-      '최유진', '최태웅'
-    ]
-    
-    // 7반 학생 명단
-    const class7Names = [
-      '강건', '강류헌', '강세훈', '강우빈', '구동하', '김건희', '김민혁', '김은성',
-      '김준희', '김태율', '김태호', '김현', '김현식', '문강윤', '박민규', '박시우',
-      '박주은', '박준성', '박지윤', '배준휘', '안동준', '엄현식', '유이준', '윤서준',
-      '이경민', '이남주', '이종승', '이현서', '임강현', '임성주', '장재민', '장해찬',
-      '조성재', '조현빈', '황성연'
-    ]
-    
-    // 8반 학생 명단
-    const class8Names = [
-      '강유진', '고동민', '권민준', '권영민', '기호준', '길승재', '김민범', '김범서',
-      '김상준', '김신', '김예준', '김지후', '나기현', '민승기', '15번 학생', '신민호',
-      '염민준', '윤준원', '이건희', '이권우', '이승훈', '이준현', '임지원', '전재원',
-      '전희재', '정우성', '조윤찬', '지민건', '진찬종', '최동현', '최온유', '최윤우',
-      '최진명', '허선호', '황동규'
-    ]
-    
-    // 2반 36명, 3반 36명, 4반 35명, 5반 35명, 6반 34명, 7반 35명, 8반 35명, 나머지 36명
-    let studentCount = 36
-    let nameList: string[] = []
-    
-    if (classNumber === 2) {
-      studentCount = 36
-      nameList = class2Names
-    } else if (classNumber === 3) {
-      studentCount = 36
-      nameList = class3Names
-    } else if (classNumber === 4) {
-      studentCount = 35
-      nameList = class4Names
-    } else if (classNumber === 5) {
-      studentCount = 35
-      nameList = class5Names
-    } else if (classNumber === 6) {
-      studentCount = 34
-      nameList = class6Names
-    } else if (classNumber === 7) {
-      studentCount = 35
-      nameList = class7Names
-    } else if (classNumber === 8) {
-      studentCount = 35
-      nameList = class8Names
-    }
-    
-    const studentList: Student[] = Array.from({ length: studentCount }, (_, i) => ({
-      id: i + 1,
-      name: nameList.length > 0 ? nameList[i] : `${i + 1}번 학생`
-    }))  
-    setStudents(studentList)
-  }, [classNumber])
-
   // 로그인 체크
   useEffect(() => {
     if (user === null) {
@@ -138,6 +39,37 @@ export default function AddPage({ params }: PageProps) {
       router.push('/')
     }
   }, [user, router])
+
+  // 로그인한 학생의 정보 가져오기
+  useEffect(() => {
+    async function fetchMyStudentInfo() {
+      if (!user || !user.email) return
+      
+      try {
+        const studentDoc = await getDoc(
+          doc(db, 'classes', `2-${classNumber}`, 'students', user.email)
+        )
+        
+        if (studentDoc.exists()) {
+          const data = studentDoc.data()
+          const studentInfo = {
+            id: data.id,
+            name: data.name
+          }
+          setMyStudentInfo(studentInfo)
+        } else {
+          alert('학생 정보를 찾을 수 없습니다. 관리자에게 문의하세요.')
+          router.push('/')
+        }
+      } catch (error) {
+        console.error('학생 정보 로드 실패:', error)
+        alert('학생 정보를 불러올 수 없습니다.')
+        router.push('/')
+      }
+    }
+    
+    fetchMyStudentInfo()
+  }, [user, classNumber, router])
 
   const togglePeriod = (period: 1 | 2 | 3) => {
     if (selectedPeriods.includes(period)) {
@@ -169,10 +101,12 @@ export default function AddPage({ params }: PageProps) {
   }
 
   const handleSubmit = async () => {
-    if (!selectedStudent) {
-      alert('학생을 선택하세요')
+    // 본인 정보 확인
+    if (!myStudentInfo) {
+      alert('학생 정보를 불러올 수 없습니다.')
       return
     }
+    
     if (selectedPeriods.length === 0) {
       alert('차시를 최소 1개 선택하세요')
       return
@@ -186,17 +120,14 @@ export default function AddPage({ params }: PageProps) {
       return
     }
 
-    const student = students.find((s) => s.id === selectedStudent)
-    if (!student) return
-
     try {
       const deviceInfo = getDeviceInfo()
       
       for (const period of selectedPeriods) {
         await addDoc(collection(db, 'absences'), {
           classNumber,
-          studentId: selectedStudent,
-          studentName: student.name,
+          studentId: myStudentInfo.id,
+          studentName: myStudentInfo.name,
           studentEmail: user?.email || '',
           reason: selectedReason,
           detail: detail,
@@ -208,7 +139,7 @@ export default function AddPage({ params }: PageProps) {
       }
       
       const periodsText = selectedPeriods.map(p => `${p}차시`).join(', ')
-      alert(`${student.name}(${student.id}번) ${periodsText} 불참 기록이 추가되었습니다`)
+      alert(`${myStudentInfo.name}(${myStudentInfo.id}번) ${periodsText} 불참 기록이 추가되었습니다`)
       router.push(`/class/${classNumber}/current`)
     } catch (error) {
       console.error('불참 추가 실패:', error)
@@ -274,34 +205,22 @@ export default function AddPage({ params }: PageProps) {
             </div>
           </div>
 
-          {/* 학생 선택 */}
+          {/* 학생 정보 */}
           <div>
             <label className="block text-base sm:text-lg font-semibold text-gray-700 mb-3 sm:mb-4">
-              학생 선택
+              학생 정보
             </label>
-            <div className="grid grid-cols-5 sm:grid-cols-7 gap-2 sm:gap-3 max-h-80 overflow-y-auto p-3 sm:p-4 border-2 border-gray-300 rounded-lg">
-              {students.map((student) => (
-              <button
-                key={student.id}
-                type="button"
-                onClick={() => setSelectedStudent(student.id)}
-                className={`p-3 rounded-lg font-bold transition-colors touch-manipulation min-h-[60px] ${
-                  selectedStudent === student.id
-                    ? 'bg-blue-600 text-white shadow-lg'
-                    : 'bg-gray-100 text-gray-700 active:bg-gray-200'
-                }`}
-              >
-                {classNumber === 2 || classNumber === 3 || classNumber === 4 || classNumber === 5 || classNumber === 6 || classNumber === 7 || classNumber === 8 ? (
-                  <div className="flex flex-col items-center text-center leading-tight">
-                    <span className="text-sm font-bold">{student.name}</span>
-                    <span className="text-xs opacity-75 mt-0.5">({student.id})</span>
-                  </div>
-                ) : (
-                  student.id
-                )}
-              </button>
-            ))}
-          </div>
+            <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-5">
+              {myStudentInfo ? (
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-blue-900">{myStudentInfo.name}</div>
+                  <div className="text-lg text-blue-700 mt-2">{myStudentInfo.id}번</div>
+                  <div className="text-sm text-blue-600 mt-2">{user?.email}</div>
+                </div>
+              ) : (
+                <div className="text-center text-gray-500">정보를 불러오는 중...</div>
+              )}
+            </div>
           </div>
 
           {/* 불참 사유 선택 */}
