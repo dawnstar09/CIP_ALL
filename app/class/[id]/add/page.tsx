@@ -19,7 +19,7 @@ export default function AddPage({ params }: PageProps) {
   const router = useRouter()
   const { user } = useAuth()
   const [students, setStudents] = useState<Student[]>([])
-  const [selectedStudent, setSelectedStudent] = useState<number | null>(null)
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
   const [selectedPeriods, setSelectedPeriods] = useState<(1 | 2 | 3)[]>([1])
   const [selectedReason, setSelectedReason] = useState<AbsenceReason | null>(null)
   const [detail, setDetail] = useState('')
