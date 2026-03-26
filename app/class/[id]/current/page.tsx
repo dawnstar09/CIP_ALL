@@ -295,39 +295,46 @@ export default function CurrentPage({ params }: PageProps) {
       return
     }
     
-    // 이메일 검증 (로그인된 계정과 불참 기록의 이메일 비교)
-    const currentUserEmail = user.email.trim().toLowerCase()
-    const recordedEmail = selectedAbsence.studentEmail?.trim().toLowerCase()
+    // 관리자 계정 확인
+    const isAdmin = user.email.toLowerCase() === 'dawnstar09@naver.com'
     
-    if (recordedEmail) {
-      // 이메일 정보가 있는 경우: 이메일로 검증
-      if (currentUserEmail !== recordedEmail) {
-        alert('본인의 불참 기록만 변경할 수 있습니다.')
-        return
-      }
-    } else {
-      // 이메일 정보가 없는 경우: 로그인한 사용자의 학생 번호로 검증
-      try {
-        const studentDoc = await getDoc(
-          doc(db, 'classes', `2-${classNumber}`, 'students', user.email)
-        )
-        
-        if (studentDoc.exists()) {
-          const studentData = studentDoc.data()
-          if (studentData.id !== selectedAbsence.studentId) {
-            alert('본인의 불참 기록만 변경할 수 있습니다.')
-            return
-          }
-        } else {
-          alert('학생 정보를 찾을 수 없습니다.')
+    if (!isAdmin) {
+      // 일반 사용자는 본인 확인 필요
+      // 이메일 검증 (로그인된 계정과 불참 기록의 이메일 비교)
+      const currentUserEmail = user.email.trim().toLowerCase()
+      const recordedEmail = selectedAbsence.studentEmail?.trim().toLowerCase()
+      
+      if (recordedEmail) {
+        // 이메일 정보가 있는 경우: 이메일로 검증
+        if (currentUserEmail !== recordedEmail) {
+          alert('본인의 불참 기록만 변경할 수 있습니다.')
           return
         }
-      } catch (error) {
-        console.error('학생 정보 조회 실패:', error)
-        alert('본인 확인에 실패했습니다.')
-        return
+      } else {
+        // 이메일 정보가 없는 경우: 로그인한 사용자의 학생 번호로 검증
+        try {
+          const studentDoc = await getDoc(
+            doc(db, 'classes', `2-${classNumber}`, 'students', user.email)
+          )
+          
+          if (studentDoc.exists()) {
+            const studentData = studentDoc.data()
+            if (studentData.id !== selectedAbsence.studentId) {
+              alert('본인의 불참 기록만 변경할 수 있습니다.')
+              return
+            }
+          } else {
+            alert('학생 정보를 찾을 수 없습니다.')
+            return
+          }
+        } catch (error) {
+          console.error('학생 정보 조회 실패:', error)
+          alert('본인 확인에 실패했습니다.')
+          return
+        }
       }
     }
+    // 관리자는 모든 불참 기록 편집 가능
     
     try {
       if (selectedAbsence.id) {
