@@ -22,7 +22,7 @@ const googleProvider = new GoogleAuthProvider()
 
 // Google 로그인 보안 설정
 googleProvider.setCustomParameters({
-  hd: 'dshs.kr', // 대성고등학교 도메인만 허용
+  hd: 'dshs.kr', // 대신고등학교 도메인만 허용
   prompt: 'select_account' // 계정 선택 화면 항상 표시
 })
 
