@@ -44,6 +44,7 @@ export default function CurrentPage({ params }: PageProps) {
   const [editReason, setEditReason] = useState<AbsenceReason | ''>('')
   const [editDetail, setEditDetail] = useState('')
   const [showConfirmModal, setShowConfirmModal] = useState(false)
+  const [confirmStudentId, setConfirmStudentId] = useState<number | null>(null)
 
   const reasons: AbsenceReason[] = ['병원', '학원', '동아리', '방과후', '기타']
 
@@ -283,29 +284,16 @@ export default function CurrentPage({ params }: PageProps) {
 
   const handleRemoveAbsence = async (absence: Absence) => {
     // 본인 확인 모달 표시
+    setConfirmStudentId(null)
     setShowConfirmModal(true)
   }
 
   const confirmRemoveAbsence = async () => {
     if (!selectedAbsence) return
     
-    // 로그인 확인
-    if (!user || !user.email) {
-      alert('로그인이 필요합니다.')
-      return
-    }
-    
-    // 이메일 검증 (로그인된 계정과 불참 기록의 이메일 비교)
-    const currentUserEmail = user.email.trim().toLowerCase()
-    const recordedEmail = selectedAbsence.studentEmail?.toLowerCase()
-    
-    if (!recordedEmail) {
-      alert('이 불참 기록에는 이메일 정보가 없습니다.')
-      return
-    }
-    
-    if (currentUserEmail !== recordedEmail) {
-      alert('본인의 불참 기록만 변경할 수 있습니다.')
+    // 본인 번호 확인
+    if (confirmStudentId !== selectedAbsence.studentId) {
+      alert('본인의 번호를 선택해야 재참가할 수 있습니다.')
       return
     }
     
@@ -314,6 +302,7 @@ export default function CurrentPage({ params }: PageProps) {
         await deleteDoc(doc(db, 'absences', selectedAbsence.id))
         setSelectedAbsence(null)
         setShowConfirmModal(false)
+        setConfirmStudentId(null)
         alert('참가로 변경되었습니다.')
       }
     } catch (error) {
@@ -688,6 +677,7 @@ export default function CurrentPage({ params }: PageProps) {
                 type="button"
                 onClick={() => {
                   setShowConfirmModal(false)
+                  setConfirmStudentId(null)
                 }}
                 className="text-gray-400 hover:text-gray-600 text-2xl"
               >
@@ -697,19 +687,42 @@ export default function CurrentPage({ params }: PageProps) {
 
             <div className="space-y-4 mb-6">
               <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
-                <p className="text-sm text-blue-800 leading-relaxed">
+                <p className="text-sm text-blue-800 leading-relaxed mb-3">
                   <strong>{selectedAbsence.studentName}</strong> 학생의 불참을 참가로 변경하시겠습니까?
                 </p>
-                {user?.email && (
-                  <p className="text-xs text-blue-600 mt-2">
-                    로그인 계정: {user.email}
-                  </p>
-                )}
+                <p className="text-xs text-blue-600">
+                  본인 확인을 위해 학생 번호를 선택해주세요.
+                </p>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  본인 번호 선택
+                </label>
+                <div className="grid grid-cols-7 gap-2 max-h-48 overflow-y-auto p-3 border-2 border-gray-300 rounded-lg">
+                  {students.map((student) => (
+                    <button
+                      key={student.id}
+                      type="button"
+                      onClick={() => setConfirmStudentId(student.id)}
+                      className={`p-2 rounded-lg font-bold transition-colors touch-manipulation ${
+                        confirmStudentId === student.id
+                          ? 'bg-blue-600 text-white shadow-lg'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      <div className="flex flex-col items-center text-center leading-tight">
+                        <span className="text-xs font-bold">{student.name}</span>
+                        <span className="text-xs opacity-75">({student.id})</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
               </div>
               
               <div className="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-3">
                 <p className="text-xs text-yellow-700">
-                  본인의 불참 기록만 변경할 수 있습니다.
+                  본인의 불참 기록만 변경하세요.
                 </p>
               </div>
             </div>
@@ -719,6 +732,7 @@ export default function CurrentPage({ params }: PageProps) {
                 type="button"
                 onClick={() => {
                   setShowConfirmModal(false)
+                  setConfirmStudentId(null)
                 }}
                 className="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-lg transition-colors"
               >

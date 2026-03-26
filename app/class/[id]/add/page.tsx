@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { db } from '@/lib/firebase'
 import { collection, addDoc } from 'firebase/firestore'
-import type { Student, Absence, AbsenceReason } from '@/types'
+import type { Student, AbsenceReason } from '@/types'
 
 interface PageProps {
   params: {
@@ -128,8 +128,6 @@ export default function AddPage({ params }: PageProps) {
     }))  
     setStudents(studentList)
   }, [classNumber])
-
-  // 로그인 체크 제거 - 누구나 접근 가능
 
   const togglePeriod = (period: 1 | 2 | 3) => {
     if (selectedPeriods.includes(period)) {
