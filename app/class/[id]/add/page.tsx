@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { db } from '@/lib/firebase'
 import { collection, addDoc } from 'firebase/firestore'
 import type { Student, AbsenceReason } from '@/types'
+import { useAuth } from '@/lib/auth-context'
 
 interface PageProps {
   params: {
@@ -16,6 +17,7 @@ interface PageProps {
 export default function AddPage({ params }: PageProps) {
   const classNumber = parseInt(params.id)
   const router = useRouter()
+  const { user } = useAuth()
   const [students, setStudents] = useState<Student[]>([])
   const [selectedStudent, setSelectedStudent] = useState<number | null>(null)
   const [selectedPeriods, setSelectedPeriods] = useState<(1 | 2 | 3)[]>([1])
@@ -128,6 +130,14 @@ export default function AddPage({ params }: PageProps) {
     }))  
     setStudents(studentList)
   }, [classNumber])
+
+  // 로그인 체크
+  useEffect(() => {
+    if (user === null) {
+      alert('로그인이 필요한 기능입니다')
+      router.push('/')
+    }
+  }, [user, router])
 
   const togglePeriod = (period: 1 | 2 | 3) => {
     if (selectedPeriods.includes(period)) {
